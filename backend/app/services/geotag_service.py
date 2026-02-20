@@ -14,7 +14,6 @@ def _parse_reported_at(ts: Optional[int], created_at: dt.datetime) -> dt.datetim
     if not ts:
         return created_at
     try:
-        # JS geolocation timestamp is milliseconds.
         if ts > 10**12:
             return dt.datetime.utcfromtimestamp(ts / 1000.0)
         return dt.datetime.utcfromtimestamp(ts)
@@ -42,7 +41,7 @@ def reverse_geocode_address(latitude: float, longitude: float) -> str:
             },
             method="GET",
         )
-        with urlopen(req, timeout=5) as resp:  # nosec - controlled URL
+        with urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         addr = str(data.get("display_name") or "").strip()
         return addr

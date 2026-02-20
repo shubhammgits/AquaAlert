@@ -38,7 +38,6 @@ def get_clusters(db: Session, *, district: str | None = None):
             max_weight[cluster_id] = w
             max_sev[cluster_id] = severity or "Low"
 
-    # Aggregate votes per cluster
     votes = db.execute(select(Validation.report_id, Validation.vote)).all()
     agree_by_report: dict[int, int] = defaultdict(int)
     disagree_by_report: dict[int, int] = defaultdict(int)
