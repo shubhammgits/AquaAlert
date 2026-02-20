@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Supervisor Dashboard • AquaAlert</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="title">AquaAlert</div>
+        <div id="whoami" class="muted"></div>
+      </div>
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Priority Clusters</h2>
+        <div id="clusterList" class="list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Cluster Map</h2>
+        <div id="map" class="map"></div>
+      </section>
+
+      <section class="card">
+        <h2>All Reports</h2>
+        <div id="allReports" class="list"></div>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/map.js"></script>
+    <script>
+      (async () => {
+        requireAuthOrRedirect();
+        if (getUserRole() !== "supervisor") {
+          window.location.href = "/user_dashboard.html";
+          return;
+        }
+        document.getElementById("whoami").textContent = `Hello, ${getUserName()} (${getUserRole()})`;
+        await initClusterMap("map", { withPriorityList: true });
+        await refreshSupervisorViews();
+      })();
+    </script>
+  </body>
+</html>

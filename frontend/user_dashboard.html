@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Dashboard • AquaAlert</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="title">AquaAlert</div>
+        <div id="whoami" class="muted"></div>
+      </div>
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Capture New Report</h2>
+        <p class="muted">Camera-only capture. No gallery uploads.</p>
+
+        <div class="camera-shell">
+          <video id="video" class="video" autoplay playsinline></video>
+          <canvas id="canvas" class="hidden"></canvas>
+          <button id="captureBtn" class="capture" type="button">Capture</button>
+        </div>
+
+        <div class="stack">
+          <label class="label">
+            Description
+            <textarea class="input" id="desc" rows="3" placeholder="What do you see? (optional)"></textarea>
+          </label>
+          <button id="submitBtn" class="btn" type="button">Submit Report</button>
+          <p id="reportMsg" class="msg" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Nearby Issues (Clusters)</h2>
+        <div id="map" class="map"></div>
+      </section>
+
+      <section class="card">
+        <h2>My Reports</h2>
+        <div id="myReports" class="list"></div>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/camera.js"></script>
+    <script src="/js/map.js"></script>
+    <script>
+      (async () => {
+        requireAuthOrRedirect();
+        document.getElementById("whoami").textContent = `Hello, ${getUserName()} (${getUserRole()})`;
+        await initCamera();
+        await refreshMyReports();
+        await initClusterMap("map");
+      })();
+    </script>
+  </body>
+</html>

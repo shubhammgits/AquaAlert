@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AquaAlert</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="app-header">
+        <h1>AquaAlert</h1>
+        <p class="muted">Smart Early Warning for Water-Borne Diseases</p>
+      </header>
+
+      <section class="card">
+        <div class="stack">
+          <a class="btn" href="/login.html">Login</a>
+          <a class="btn btn-secondary" href="/register.html">Register</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>How it works</h2>
+        <ol class="muted">
+          <li>Capture a photo (camera only) + GPS.</li>
+          <li>AI analyzes the issue and assigns severity.</li>
+          <li>Reports are clustered for crowd validation.</li>
+          <li>Supervisors get priority list + QR navigation.</li>
+        </ol>
+      </section>
+    </main>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
+      }
+    </script>
+  </body>
+</html>
