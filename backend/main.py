@@ -19,7 +19,7 @@ from backend.app.routes.worker_routes import router as worker_router
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 BACKEND_STATIC_DIR = Path(__file__).resolve().parent / "static"
-FRIEND_FRONTEND_DIST_DIR = ROOT_DIR / "friend_frontend_repo" / "Frontend" / "dist"
+FRONTEND_DIST_DIR = ROOT_DIR / "frontend" / "dist"
 LEGACY_DIR = BACKEND_STATIC_DIR / "legacy"
 
 # Load local environment variables (e.g. GEMINI_API_KEY, JWT_SECRET) from `.env` if present.
@@ -55,8 +55,8 @@ def create_app() -> FastAPI:
     if (LEGACY_DIR / "js").exists():
         app.mount("/js", StaticFiles(directory=str(LEGACY_DIR / "js")), name="js")
 
-    if FRIEND_FRONTEND_DIST_DIR.exists():
-        assets_dir = FRIEND_FRONTEND_DIST_DIR / "assets"
+    if FRONTEND_DIST_DIR.exists():
+        assets_dir = FRONTEND_DIST_DIR / "assets"
         if assets_dir.exists():
             app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="landing_assets")
 
@@ -75,14 +75,14 @@ def create_app() -> FastAPI:
 
     @app.get("/")
     def index() -> FileResponse:
-        if FRIEND_FRONTEND_DIST_DIR.exists() and (FRIEND_FRONTEND_DIST_DIR / "index.html").exists():
-            return FileResponse(str(FRIEND_FRONTEND_DIST_DIR / "index.html"))
+        if FRONTEND_DIST_DIR.exists() and (FRONTEND_DIST_DIR / "index.html").exists():
+            return FileResponse(str(FRONTEND_DIST_DIR / "index.html"))
         return FileResponse(str(LEGACY_DIR / "index.html"))
 
     @app.get("/index.html")
     def index_html() -> FileResponse:
-        if FRIEND_FRONTEND_DIST_DIR.exists() and (FRIEND_FRONTEND_DIST_DIR / "index.html").exists():
-            return FileResponse(str(FRIEND_FRONTEND_DIST_DIR / "index.html"))
+        if FRONTEND_DIST_DIR.exists() and (FRONTEND_DIST_DIR / "index.html").exists():
+            return FileResponse(str(FRONTEND_DIST_DIR / "index.html"))
         return FileResponse(str(LEGACY_DIR / "index.html"))
 
     @app.get("/login.html")
