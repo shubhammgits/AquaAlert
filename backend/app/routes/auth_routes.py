@@ -18,11 +18,18 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
+    if payload.role in {"supervisor", "worker"} and not payload.district.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="District is required for this role")
+
     user = User(
         name=payload.name,
         email=str(payload.email).lower(),
         password_hash=hash_password(payload.password),
         role=payload.role,
+        phone=payload.phone.strip() or None,
+        district=payload.district.strip() or None,
+        state=payload.state.strip() or None,
+        city=payload.city.strip() or None,
     )
     db.add(user)
     db.commit()

@@ -28,10 +28,27 @@
             <input class="input" name="password" type="password" autocomplete="new-password" required />
           </label>
           <label class="label">
+            Phone (optional)
+            <input class="input" name="phone" type="tel" autocomplete="tel" />
+          </label>
+          <label class="label">
+            District (required for workers)
+            <input class="input" name="district" type="text" autocomplete="address-level2" />
+          </label>
+          <label class="label">
+            State
+            <input class="input" name="state" type="text" autocomplete="address-level1" />
+          </label>
+          <label class="label">
+            City
+            <input class="input" name="city" type="text" autocomplete="address-level2" />
+          </label>
+          <label class="label">
             Role
             <select class="input" name="role" required>
               <option value="user" selected>Citizen User</option>
               <option value="supervisor">Supervisor</option>
+              <option value="worker">Worker</option>
             </select>
           </label>
           <button class="btn" type="submit">Register</button>

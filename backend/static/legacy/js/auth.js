@@ -34,7 +34,9 @@ async function handleLogin(e) {
   try {
     const data = await API.request("/auth/login", { method: "POST", body: { email, password }, auth: false });
     setSession(data);
-    window.location.href = data.role === "supervisor" ? "/supervisor_dashboard.html" : "/user_dashboard.html";
+    if (data.role === "supervisor") window.location.href = "/supervisor_dashboard.html";
+    else if (data.role === "worker") window.location.href = "/worker_dashboard.html";
+    else window.location.href = "/user_dashboard.html";
   } catch (err) {
     msg.textContent = err.message;
   }
@@ -51,6 +53,10 @@ async function handleRegister(e) {
     email: form.email.value,
     password: form.password.value,
     role: form.role.value,
+    phone: form.phone ? form.phone.value : "",
+    district: form.district ? form.district.value : "",
+    state: form.state ? form.state.value : "",
+    city: form.city ? form.city.value : "",
   };
 
   try {
@@ -61,7 +67,9 @@ async function handleRegister(e) {
       auth: false,
     });
     setSession(data);
-    window.location.href = data.role === "supervisor" ? "/supervisor_dashboard.html" : "/user_dashboard.html";
+    if (data.role === "supervisor") window.location.href = "/supervisor_dashboard.html";
+    else if (data.role === "worker") window.location.href = "/worker_dashboard.html";
+    else window.location.href = "/user_dashboard.html";
   } catch (err) {
     msg.textContent = err.message;
   }
@@ -76,12 +84,43 @@ function wireLogout() {
   });
 }
 
+function applyRoleHint() {
+  const params = new URLSearchParams(window.location.search);
+  const hintedRole = (params.get("role") || "").trim();
+
+  const registerForm = document.getElementById("registerForm");
+  if (registerForm && hintedRole) {
+    const roleSel = registerForm.querySelector("select[name='role']");
+    if (roleSel) roleSel.value = hintedRole;
+  }
+
+  const loginPageRegisterLink = document.querySelector("a[href='/register.html']");
+  if (loginPageRegisterLink && hintedRole) {
+    loginPageRegisterLink.setAttribute("href", `/register.html?role=${encodeURIComponent(hintedRole)}`);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  if ("serviceWorker" in navigator) {
+    try {
+      navigator.serviceWorker.register("/service-worker.js").then((reg) => {
+        try {
+          reg.update();
+        } catch {
+          // ignore
+        }
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   const loginForm = document.getElementById("loginForm");
   if (loginForm) loginForm.addEventListener("submit", handleLogin);
 
   const registerForm = document.getElementById("registerForm");
   if (registerForm) registerForm.addEventListener("submit", handleRegister);
 
+  applyRoleHint();
   wireLogout();
 });

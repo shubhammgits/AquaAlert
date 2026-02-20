@@ -36,6 +36,12 @@
         <h2>All Reports</h2>
         <div id="allReports" class="list"></div>
       </section>
+
+      <section class="card">
+        <h2>Completion Verification</h2>
+        <p class="muted">Verify worker completion photos.</p>
+        <div id="verifyQueue" class="list"></div>
+      </section>
     </main>
 
     <script
@@ -46,6 +52,7 @@
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/map.js"></script>
+    <script src="/js/supervisor.js"></script>
     <script>
       (async () => {
         requireAuthOrRedirect();
@@ -56,6 +63,7 @@
         document.getElementById("whoami").textContent = `Hello, ${getUserName()} (${getUserRole()})`;
         await initClusterMap("map", { withPriorityList: true });
         await refreshSupervisorViews();
+        await refreshVerifyQueue();
       })();
     </script>
   </body>

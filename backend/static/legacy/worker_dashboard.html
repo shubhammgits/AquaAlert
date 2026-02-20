@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Worker Dashboard • AquaAlert</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="title">AquaAlert</div>
+        <div id="whoami" class="muted"></div>
+      </div>
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Assigned Tasks</h2>
+        <div id="assignedList" class="list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Completed & Verified</h2>
+        <div id="historyList" class="list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Submit Completion</h2>
+        <p class="muted">Capture a live photo (camera only) with GPS.</p>
+        <label class="label">
+          Select report
+          <select id="reportSelect" class="input"></select>
+        </label>
+
+        <div class="camera-shell">
+          <video id="video" class="video" autoplay playsinline></video>
+          <canvas id="canvas" class="hidden"></canvas>
+          <button id="captureBtn" class="capture" type="button">Capture</button>
+        </div>
+
+        <div class="stack">
+          <button id="submitCompletionBtn" class="btn" type="button">Send to Supervisor</button>
+          <p id="workerMsg" class="msg" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/worker.js"></script>
+    <script>
+      (async () => {
+        requireAuthOrRedirect();
+        if (getUserRole() !== "worker") {
+          window.location.href = "/user_dashboard.html";
+          return;
+        }
+        document.getElementById("whoami").textContent = `Hello, ${getUserName()} (${getUserRole()})`;
+        await initWorker();
+      })();
+    </script>
+  </body>
+</html>

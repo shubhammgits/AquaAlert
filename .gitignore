@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local DB + generated uploads
+aquaalert.db
+backend/static/images/
+backend/static/qr/

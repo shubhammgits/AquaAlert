@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from io import BytesIO
 from typing import Any, Literal, TypedDict
 
@@ -55,6 +56,21 @@ def _normalize(result: dict[str, Any]) -> AnalysisResult:
 
 def _extract_json(text: str) -> dict[str, Any]:
     s = text.strip()
+
+    # Common Gemini formatting: markdown fenced code block.
+    if s.startswith("```"):
+        s = re.sub(r"^```(?:json)?\\s*", "", s, flags=re.IGNORECASE)
+        s = re.sub(r"\\s*```$", "", s)
+        s = s.strip()
+
+    # If the whole response is JSON, parse directly.
+    try:
+        parsed = json.loads(s)
+        if isinstance(parsed, dict):
+            return parsed
+    except Exception:
+        pass
+
     start = s.find("{")
     end = s.rfind("}")
     if start == -1 or end == -1 or end <= start:
@@ -62,28 +78,38 @@ def _extract_json(text: str) -> dict[str, Any]:
     return json.loads(s[start : end + 1])
 
 
+def _fallback(*, description: str, reason: str | None = None) -> AnalysisResult:
+    msg = "AI analysis unavailable"
+    if reason:
+        msg = f"{msg} ({reason})"
+    return {
+        "problem": [msg] if description else [],
+        "causes": [],
+        "precautions": ["Provide clean water and avoid contact with suspected sources."],
+        "prevention": ["Report and monitor the area; ensure proper sanitation."],
+        "severity": "Low",
+    }
+
+
 def analyze_image(*, image_bytes: bytes, description: str) -> AnalysisResult:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        # Development fallback so the app remains usable without external credentials.
-        return {
-            "problem": ["Unconfigured AI analysis (missing GEMINI_API_KEY)"] if description else [],
-            "causes": [],
-            "precautions": ["Provide clean water and avoid contact with suspected sources."],
-            "prevention": ["Report and monitor the area; ensure proper sanitation."],
-            "severity": "Low",
-        }
+        return _fallback(description=description, reason="missing GEMINI_API_KEY")
 
     try:
         import google.generativeai as genai
     except Exception as exc:  # pragma: no cover
         raise RuntimeError("Missing dependency: google-generativeai") from exc
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    image = Image.open(BytesIO(image_bytes)).convert("RGB")
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        image = Image.open(BytesIO(image_bytes)).convert("RGB")
 
-    response = model.generate_content([PROMPT + f"\nUser description: {description}", image])
-    text = getattr(response, "text", None) or ""
-    parsed = _extract_json(text)
-    return _normalize(parsed)
+        response = model.generate_content([PROMPT + f"\nUser description: {description}", image])
+        text = getattr(response, "text", None) or ""
+        parsed = _extract_json(text)
+        return _normalize(parsed)
+    except Exception as exc:
+        # Best-effort: never break report creation just because AI returned non-JSON or the API failed.
+        return _fallback(description=description, reason=type(exc).__name__)
