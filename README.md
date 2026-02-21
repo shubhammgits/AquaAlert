@@ -340,7 +340,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - OpenStreetMap for mapping services
 - Leaflet.js for interactive maps
