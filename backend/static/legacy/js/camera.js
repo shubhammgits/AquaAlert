@@ -208,8 +208,52 @@ async function submitReport() {
 
 async function refreshMyReports() {
   const holder = document.getElementById("myReports");
+  const sidebarHolder = document.getElementById("sidebarMyReports");
+  const rightHistory = document.getElementById("rightHistory");
   if (!holder) return;
   holder.innerHTML = "";
+
+  function fmtDateShort(iso) {
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+    } catch {
+      return "";
+    }
+  }
+
+  function normalizeStatus(status) {
+    const s = String(status || "submitted").toLowerCase();
+    const known = new Set(["submitted", "accepted", "assigned", "completed", "closed", "rejected"]);
+    return known.has(s) ? s : "submitted";
+  }
+
+  function badgeForReport(r) {
+    const s = normalizeStatus(r.status);
+    if (s === "closed") return { cls: "badge--completed", label: "Completed" };
+    if (s === "assigned") return { cls: "badge--assigned", label: "Worker Assigned" };
+    if (s === "completed") return { cls: "badge--progress", label: "In Progress" };
+    if (s === "accepted") return { cls: "badge--progress", label: "In Progress" };
+    if (s === "rejected") return { cls: "badge--critical", label: "Needs Action" };
+    return { cls: "badge--pending", label: "Pending" };
+  }
+
+  function statusLabel(status) {
+    const s = normalizeStatus(status);
+    if (s === "submitted") return "Submitted";
+    if (s === "accepted") return "Accepted";
+    if (s === "assigned") return "Assigned";
+    if (s === "completed") return "Completed";
+    if (s === "closed") return "Closed";
+    if (s === "rejected") return "Rejected";
+    return "Submitted";
+  }
+
+  function renderStatusPill(status) {
+    const s = normalizeStatus(status);
+    return `<span class="pill pill--status pill--${s}"><span class="pill__dot"></span>${statusLabel(s)}</span>`;
+  }
   
   function renderProgress(status) {
     const steps = [
@@ -242,16 +286,94 @@ async function refreshMyReports() {
   try {
     const reports = await API.request("/reports/me");
     if (!reports.length) {
-      holder.innerHTML = `<div class="muted">No reports yet.</div>`;
+      holder.innerHTML = `<div class="empty-state">No reports yet.</div>`;
+      if (sidebarHolder) sidebarHolder.innerHTML = `<div class="nav__empty">No reports yet.</div>`;
+      if (rightHistory) rightHistory.innerHTML = `<div class="empty-state">No reports yet.</div>`;
       return;
     }
+
+    if (sidebarHolder) {
+      const top = reports.slice(0, 10);
+      sidebarHolder.innerHTML = top
+        .map((r) => {
+          const district = escapeHtml(r.district || "");
+          const createdAt = r.created_at ? new Date(r.created_at).toLocaleDateString() : "";
+          const metaPieces = [district, createdAt].filter(Boolean);
+          const workerName = r.assigned_worker && r.assigned_worker.name ? escapeHtml(r.assigned_worker.name) : "";
+          if (workerName) metaPieces.push(`Worker: ${workerName}`);
+          return `
+            <a class="nav__report" href="#myreports" data-report-id="${escapeHtml(r.id || "")}">
+              <div>
+                <div class="nav__rtitle">Report #${escapeHtml(r.id || "")}</div>
+                <div class="nav__rmeta">${metaPieces.join(" • ")}</div>
+              </div>
+              ${renderStatusPill(r.status)}
+            </a>
+          `;
+        })
+        .join("");
+    }
+
+    if (rightHistory) {
+      const top = reports.slice(0, 20);
+      rightHistory.innerHTML = top
+        .map((r) => {
+          const badge = badgeForReport(r);
+          const title = `R-${escapeHtml(r.id || "")}`;
+          const date = fmtDateShort(r.created_at);
+          const loc = escapeHtml(r.district || "");
+          const meta = [date, loc].filter(Boolean).join(" • ");
+
+          const actions = [];
+          if (r.image_url) {
+            actions.push(`<a class="btn btn-secondary" href="${r.image_url}" target="_blank" rel="noreferrer">View Image</a>`);
+          }
+          if (r.qr_url) {
+            actions.push(`<a class="btn btn-secondary" href="${r.qr_url}" target="_blank" rel="noreferrer">View QR</a>`);
+          }
+
+          const bodyBits = [];
+          if (r.assigned_worker && r.assigned_worker.name) {
+            bodyBits.push(`<div class="muted">Worker: ${escapeHtml(r.assigned_worker.name)} (ID: ${escapeHtml(r.assigned_worker.id)})</div>`);
+          }
+          if (r.resolution_message) {
+            bodyBits.push(`<div class="muted">${escapeHtml(r.resolution_message)}</div>`);
+          }
+          if (r.description) {
+            bodyBits.push(`<div class="muted">${escapeHtml(r.description)}</div>`);
+          }
+
+          return `
+            <div class="hitem" data-hitem>
+              <button class="hitem__head" type="button" data-hitem-toggle>
+                <div>
+                  <div class="hitem__title">${title}</div>
+                  <div class="hitem__meta">${meta}</div>
+                </div>
+                <span class="badge ${badge.cls}">${badge.label}</span>
+              </button>
+              <div class="hitem__body" data-hitem-body>
+                <div class="hitem__bodyInner">
+                  ${bodyBits.join("")}
+                  ${actions.length ? `<div class="actions">${actions.join("")}</div>` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      wireHistoryToggles(rightHistory);
+    }
+
     holder.innerHTML = reports
       .map(
-        (r) => `
+        (r) => {
+          return `
         <div class="item">
           <div class="row">
             <span class="pill">${r.severity}</span>
-            <span class="pill">${r.status}</span>
+            ${renderStatusPill(r.status)}
             <span class="muted">${new Date(r.created_at).toLocaleString()}</span>
           </div>
           <div class="muted">District: ${escapeHtml(r.district || "")}</div>
@@ -282,20 +404,34 @@ async function refreshMyReports() {
                 : ""
             }
           </div>
-          <details>
-            <summary class="muted">AI analysis</summary>
-            <div class="muted">Problem: ${escapeHtml((r.ai.problem || []).join(", "))}</div>
-            <div class="muted">Causes: ${escapeHtml((r.ai.causes || []).join(", "))}</div>
-            <div class="muted">Precautions: ${escapeHtml((r.ai.precautions || []).join(", "))}</div>
-            <div class="muted">Prevention: ${escapeHtml((r.ai.prevention || []).join(", "))}</div>
-          </details>
         </div>
-      `
+      `;
+        }
       )
       .join("");
   } catch (err) {
     holder.innerHTML = `<div class="muted">${escapeHtml(err.message)}</div>`;
+    if (sidebarHolder) sidebarHolder.innerHTML = `<div class="nav__empty">${escapeHtml(err.message)}</div>`;
+    if (rightHistory) rightHistory.innerHTML = `<div class="empty-state">${escapeHtml(err.message)}</div>`;
   }
+}
+
+function wireHistoryToggles(root) {
+  if (!root) return;
+  const items = root.querySelectorAll("[data-hitem]");
+  items.forEach((item) => {
+    const btn = item.querySelector("[data-hitem-toggle]");
+    const body = item.querySelector("[data-hitem-body]");
+    if (!btn || !body) return;
+    btn.addEventListener("click", () => {
+      const isOpen = item.classList.toggle("is-open");
+      if (isOpen) {
+        body.style.maxHeight = body.scrollHeight + "px";
+      } else {
+        body.style.maxHeight = "0px";
+      }
+    });
+  });
 }
 
 function escapeHtml(s) {

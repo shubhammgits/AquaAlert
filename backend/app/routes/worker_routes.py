@@ -5,12 +5,11 @@ import math
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from pymongo import ASCENDING
+from pymongo.database import Database
 
 from backend.app.auth import require_role
 from backend.app.database import get_db
-from backend.app.models import User
 from backend.app.schemas import WorkerLocationIn, WorkerOut
 
 router = APIRouter(prefix="/workers", tags=["workers"])
@@ -30,75 +29,94 @@ def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 @router.post("/location")
 def update_my_location(
     payload: WorkerLocationIn,
-    worker: Annotated[User, Depends(require_role("worker"))],
-    db: Annotated[Session, Depends(get_db)],
+    worker: Annotated[dict, Depends(require_role("worker"))],
+    db: Annotated[Database, Depends(get_db)],
 ):
     # Keep consistent with the rest of the app: reject very low-accuracy GPS.
     if payload.accuracy > 100:
         raise HTTPException(status_code=400, detail="Location accuracy too low (>100m)")
 
-    worker.current_latitude = float(payload.latitude)
-    worker.current_longitude = float(payload.longitude)
-    worker.current_accuracy = float(payload.accuracy)
-    worker.location_updated_at = dt.datetime.utcnow()
-    db.add(worker)
-    db.commit()
-    return {"ok": True, "location_updated_at": worker.location_updated_at}
+    updated_at = dt.datetime.utcnow()
+    db["users"].update_one(
+        {"id": int(worker["id"]), "role": "worker"},
+        {
+            "$set": {
+                "current_latitude": float(payload.latitude),
+                "current_longitude": float(payload.longitude),
+                "current_accuracy": float(payload.accuracy),
+                "location_updated_at": updated_at,
+            }
+        },
+    )
+    worker.update(
+        {
+            "current_latitude": float(payload.latitude),
+            "current_longitude": float(payload.longitude),
+            "current_accuracy": float(payload.accuracy),
+            "location_updated_at": updated_at,
+        }
+    )
+    return {"ok": True, "location_updated_at": updated_at}
 
 
 @router.get("", response_model=list[WorkerOut])
 def list_workers(
-    supervisor: Annotated[User, Depends(require_role("supervisor"))],
-    db: Annotated[Session, Depends(get_db)],
+    supervisor: Annotated[dict, Depends(require_role("supervisor"))],
+    db: Annotated[Database, Depends(get_db)],
     district: Optional[str] = None,
     only_available: bool = True,
     lat: Optional[float] = None,
     lon: Optional[float] = None,
     max_age_sec: int = 900,
 ):
-    if not supervisor.district:
+    if not supervisor.get("district"):
         raise HTTPException(status_code=400, detail="Supervisor district not set")
 
     if district is None:
-        district = supervisor.district
-    elif district != supervisor.district:
+        district = supervisor.get("district")
+    elif district != supervisor.get("district"):
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    q = select(User).where(User.role == "worker")
+    query: dict = {"role": "worker"}
     if district:
-        q = q.where(User.district == district)
+        query["district"] = district
     if only_available:
-        q = q.where(User.is_available == True)  # noqa: E712
-    workers = db.execute(q).scalars().all()
+        query["is_available"] = True
+
+    workers = list(db["users"].find(query).sort("id", ASCENDING))
 
     now = dt.datetime.utcnow()
-    items: list[tuple[User, Optional[int]]] = []
+    items: list[tuple[dict, Optional[int]]] = []
     for w in workers:
         dist_m: Optional[int] = None
         if lat is not None and lon is not None:
             if (
-                w.current_latitude is not None
-                and w.current_longitude is not None
-                and w.location_updated_at is not None
+                w.get("current_latitude") is not None
+                and w.get("current_longitude") is not None
+                and w.get("location_updated_at") is not None
             ):
-                age = (now - w.location_updated_at).total_seconds()
+                age = (now - w["location_updated_at"]).total_seconds()
                 if age <= float(max_age_sec):
-                    dist_m = int(_haversine_m(float(lat), float(lon), float(w.current_latitude), float(w.current_longitude)))
+                    dist_m = int(
+                        _haversine_m(float(lat), float(lon), float(w["current_latitude"]), float(w["current_longitude"]))
+                    )
         items.append((w, dist_m))
 
     # Sort by distance when applicable; unknown/stale locations go last.
     if lat is not None and lon is not None:
-        items.sort(key=lambda t: (t[1] is None, t[1] if t[1] is not None else 10**12, t[0].id))
+        items.sort(
+            key=lambda t: (t[1] is None, t[1] if t[1] is not None else 10**12, int(t[0].get("id", 0)))
+        )
 
     return [
         WorkerOut(
-            id=w.id,
-            name=w.name,
-            phone=w.phone,
-            district=w.district,
-            is_available=w.is_available,
+            id=int(w.get("id", 0)),
+            name=str(w.get("name", "")),
+            phone=w.get("phone"),
+            district=w.get("district"),
+            is_available=bool(w.get("is_available", False)),
             distance_m=dist_m,
-            location_updated_at=w.location_updated_at,
+            location_updated_at=w.get("location_updated_at"),
         )
         for (w, dist_m) in items
     ]

@@ -1,16 +1,16 @@
 from __future__ import annotations
 
+import datetime as dt
 import math
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import desc, func, select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from pymongo import DESCENDING
+from pymongo.database import Database
+from pymongo.errors import DuplicateKeyError
 
 from backend.app.auth import get_current_user
-from backend.app.database import get_db
-from backend.app.models import Report, Validation
+from backend.app.database import get_db, get_next_id
 from backend.app.schemas import ValidationCandidateOut, ValidationVoteIn
 
 router = APIRouter(prefix="/validation", tags=["validation"])
@@ -32,42 +32,39 @@ def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def nearby_candidates(
     lat: float,
     lon: float,
-    user: Annotated[object, Depends(get_current_user)],
-    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[dict, Depends(get_current_user)],
+    db: Annotated[Database, Depends(get_db)],
     radius_m: int = 3000,
 ):
     # Pull recent reports; filter by distance in Python to keep SQLite simple.
-    rows = (
-        db.execute(
-            select(Report)
-            .where(Report.status.in_(["submitted", "accepted", "assigned"]))
-            .order_by(desc(Report.created_at))
-            .limit(200)
-        )
-        .scalars()
-        .all()
+    rows = list(
+        db["reports"]
+        .find({"status": {"$in": ["submitted", "accepted", "assigned"]}})
+        .sort("created_at", DESCENDING)
+        .limit(200)
     )
 
     voted_report_ids = set(
-        db.execute(select(Validation.report_id).where(Validation.user_id == user.id)).scalars().all()
+        int(v["report_id"]) for v in db["validations"].find({"user_id": int(user["id"])}, {"report_id": 1})
     )
 
     out: list[ValidationCandidateOut] = []
     for r in rows:
-        if r.user_id == user.id:
+        if int(r.get("user_id", 0)) == int(user["id"]):
             continue
-        if r.id in voted_report_ids:
+        rid = int(r.get("id", 0))
+        if rid in voted_report_ids:
             continue
-        if _haversine_m(lat, lon, r.latitude, r.longitude) <= float(radius_m):
+        if _haversine_m(lat, lon, float(r.get("latitude", 0.0)), float(r.get("longitude", 0.0))) <= float(radius_m):
             out.append(
                 ValidationCandidateOut(
-                    report_id=r.id,
-                    latitude=r.latitude,
-                    longitude=r.longitude,
-                    district=r.district or "",
-                    description=r.description or "",
-                    severity=r.severity,  # type: ignore[arg-type]
-                    created_at=r.created_at,
+                    report_id=rid,
+                    latitude=float(r.get("latitude", 0.0)),
+                    longitude=float(r.get("longitude", 0.0)),
+                    district=str(r.get("district") or ""),
+                    description=str(r.get("description") or ""),
+                    severity=r.get("severity", "Low"),
+                    created_at=r.get("created_at"),
                 )
             )
     return out[:20]
@@ -77,21 +74,25 @@ def nearby_candidates(
 def vote(
     report_id: int,
     payload: ValidationVoteIn,
-    user: Annotated[object, Depends(get_current_user)],
-    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[dict, Depends(get_current_user)],
+    db: Annotated[Database, Depends(get_db)],
 ):
-    report = db.get(Report, report_id)
+    report = db["reports"].find_one({"id": report_id})
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
-    if report.user_id == user.id:
+    if int(report.get("user_id", 0)) == int(user["id"]):
         raise HTTPException(status_code=400, detail="Cannot vote on your own report")
 
-    v = Validation(report_id=report_id, user_id=user.id, vote=1 if payload.vote else 0)
-    db.add(v)
+    vdoc = {
+        "id": get_next_id(db, "validations"),
+        "report_id": int(report_id),
+        "user_id": int(user["id"]),
+        "vote": 1 if payload.vote else 0,
+        "created_at": dt.datetime.utcnow(),
+    }
     try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
+        db["validations"].insert_one(vdoc)
+    except DuplicateKeyError:
         raise HTTPException(status_code=409, detail="Already voted")
 
     return {"ok": True}

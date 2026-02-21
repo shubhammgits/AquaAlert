@@ -8,10 +8,9 @@ import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
 from backend.app.database import get_db
-from backend.app.models import User
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -50,8 +49,8 @@ def _unauthorized(detail: str = "Not authenticated") -> HTTPException:
 
 def get_current_user(
     credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(_bearer)],
-    db: Annotated[Session, Depends(get_db)],
-) -> User:
+    db: Annotated[Database, Depends(get_db)],
+) -> dict:
     if credentials is None or not credentials.credentials:
         raise _unauthorized()
 
@@ -65,15 +64,20 @@ def get_current_user(
     if not user_id:
         raise _unauthorized("Invalid token")
 
-    user = db.get(User, int(user_id))
+    try:
+        uid = int(user_id)
+    except Exception:
+        raise _unauthorized("Invalid token")
+
+    user = db["users"].find_one({"id": uid})
     if not user:
         raise _unauthorized("User not found")
     return user
 
 
 def require_role(*allowed_roles: str) -> Callable:
-    def _dep(user: Annotated[User, Depends(get_current_user)]) -> User:
-        if user.role not in allowed_roles:
+    def _dep(user: Annotated[dict, Depends(get_current_user)]) -> dict:
+        if user.get("role") not in allowed_roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
         return user
 

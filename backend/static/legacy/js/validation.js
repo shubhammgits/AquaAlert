@@ -10,7 +10,17 @@ async function refreshValidationCandidates() {
       navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 12000 });
     });
   } catch {
-    box.innerHTML = '<div class="muted">Enable GPS to verify nearby reports.</div>';
+    box.innerHTML = `
+      <div class="empty-state">
+        <div aria-hidden="true" style="display:inline-flex; margin-bottom:10px; opacity:0.9;">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a7 7 0 0 1 7 7c0 6.5-7 13-7 13S5 15.5 5 9a7 7 0 0 1 7-7Z" />
+            <path d="M12 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+          </svg>
+        </div>
+        Enable GPS to verify nearby reports.
+      </div>
+    `;
     return;
   }
 
@@ -19,7 +29,17 @@ async function refreshValidationCandidates() {
     const lon = pos.coords.longitude;
     const candidates = await API.request(`/validation/nearby?lat=${lat}&lon=${lon}&radius_m=1000`);
     if (!candidates.length) {
-      box.innerHTML = '<div class="muted">No nearby verification requests right now.</div>';
+      box.innerHTML = `
+        <div class="empty-state">
+          <div aria-hidden="true" style="display:inline-flex; margin-bottom:10px; opacity:0.9;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12l2 2 4-4" />
+              <path d="M12 22a10 10 0 1 0-10-10" />
+            </svg>
+          </div>
+          No nearby verification requests right now.
+        </div>
+      `;
       return;
     }
 

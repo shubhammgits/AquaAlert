@@ -1,4 +1,4 @@
-const CACHE_NAME = "aquaalert-v2";
+const CACHE_NAME = "aquaalert-v13";
 const ASSETS = [
   "/",
   "/index.html",
@@ -8,8 +8,12 @@ const ASSETS = [
   "/supervisor_dashboard.html",
   "/worker_dashboard.html",
   "/css/styles.css",
+  "/css/auth.css",
+  "/css/portal.css",
   "/js/api.js",
+  "/js/auth_ui.js",
   "/js/auth.js",
+  "/js/portal_ui.js",
   "/js/camera.js",
   "/js/map.js",
   "/js/validation.js",
@@ -43,10 +47,21 @@ self.addEventListener("fetch", (event) => {
   // For app shell + static assets, prefer network to pick up updates quickly.
   const isHtml =
     event.request.mode === "navigate" || url.pathname === "/" || url.pathname.endsWith(".html") || url.pathname === "/index.html";
-  const isStaticAsset = url.pathname.startsWith("/js/") || url.pathname.startsWith("/css/") || url.pathname === "/manifest.json";
+  const isStaticAsset =
+    url.pathname.startsWith("/js/") ||
+    url.pathname.startsWith("/css/") ||
+    url.pathname.startsWith("/static/") ||
+    url.pathname === "/manifest.json";
 
-  // Never cache API calls (auth/reports/clusters). Always hit network.
-  if (url.pathname.startsWith("/auth") || url.pathname.startsWith("/reports") || url.pathname.startsWith("/clusters")) {
+  // Never cache API calls. Always hit network.
+  if (
+    url.pathname.startsWith("/auth") ||
+    url.pathname.startsWith("/reports") ||
+    url.pathname.startsWith("/clusters") ||
+    url.pathname.startsWith("/workers") ||
+    url.pathname.startsWith("/validation") ||
+    url.pathname.startsWith("/health")
+  ) {
     event.respondWith(fetch(event.request));
     return;
   }

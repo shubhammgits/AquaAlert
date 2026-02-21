@@ -4,51 +4,165 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Worker Dashboard • AquaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/portal.css" />
   </head>
-  <body>
-    <header class="topbar">
-      <div>
-        <div class="title">AquaAlert</div>
-        <div id="whoami" class="muted"></div>
-      </div>
-      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
-    </header>
-
-    <main class="container">
-      <section class="card">
-        <h2>Assigned Tasks</h2>
-        <div id="assignedList" class="list"></div>
-      </section>
-
-      <section class="card">
-        <h2>Completed & Verified</h2>
-        <div id="historyList" class="list"></div>
-      </section>
-
-      <section class="card">
-        <h2>Submit Completion</h2>
-        <p class="muted">Capture a live photo (camera only) with GPS.</p>
-        <label class="label">
-          Select report
-          <select id="reportSelect" class="input"></select>
-        </label>
-
-        <div class="camera-shell">
-          <video id="video" class="video" autoplay playsinline></video>
-          <canvas id="canvas" class="hidden"></canvas>
-          <button id="captureBtn" class="capture" type="button">Capture</button>
+  <body class="portal">
+    <div class="app-layout">
+      <aside class="sidebar sidebar--left" aria-label="Sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__app">AquaAlert</div>
+          <div id="whoami" class="sidebar__who muted"></div>
         </div>
 
-        <div class="stack">
-          <button id="submitCompletionBtn" class="btn" type="button">Send to Supervisor</button>
-          <p id="workerMsg" class="msg" aria-live="polite"></p>
+        <nav class="nav" aria-label="Main">
+          <a class="nav__item" href="/">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10.5 12 3l9 7.5" />
+                <path d="M5 10v10h14V10" />
+              </svg>
+            </span>
+            Home
+          </a>
+
+          <a class="nav__item is-active" href="#assigned">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h7v7H4z" />
+                <path d="M13 4h7v7h-7z" />
+                <path d="M4 13h7v7H4z" />
+                <path d="M13 13h7v7h-7z" />
+              </svg>
+            </span>
+            Dashboard
+          </a>
+
+          <a class="nav__item" href="#assigned">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </svg>
+            </span>
+            Assigned Tasks
+          </a>
+
+          <a class="nav__item" href="#history">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v6h6" />
+                <path d="M3.05 13a9 9 0 1 0 .5-4" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+            </span>
+            Completed
+          </a>
+
+          <a class="nav__item" href="#completion">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" />
+                <path d="M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+              </svg>
+            </span>
+            Submit Completion
+          </a>
+
+          <a class="nav__item" href="#settings">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05a2.05 2.05 0 0 1-1.45 3.5 2.07 2.07 0 0 1-1.45-.6l-.05-.05a1.7 1.7 0 0 0-1.86-.34 1.7 1.7 0 0 0-1 1.55V22a2.05 2.05 0 0 1-4.1 0v-.07a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.05.05a2.07 2.07 0 0 1-1.45.6 2.05 2.05 0 0 1-1.45-3.5l.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2.05 2.05 0 0 1 0-4.1h.05A1.7 1.7 0 0 0 4.6 8.35a1.7 1.7 0 0 0-.34-1.87l-.05-.05A2.05 2.05 0 0 1 5.66 2.9c.54 0 1.07.21 1.45.6l.05.05a1.7 1.7 0 0 0 1.87.34 1.7 1.7 0 0 0 1-1.55V2a2.05 2.05 0 0 1 4.1 0v.07a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.86-.34l.05-.05c.38-.39.91-.6 1.45-.6a2.05 2.05 0 0 1 1.45 3.5l-.05.05a1.7 1.7 0 0 0-.34 1.87 1.7 1.7 0 0 0 1.55 1H22a2.05 2.05 0 0 1 0 4.1h-.07a1.7 1.7 0 0 0-1.55 1Z" />
+              </svg>
+            </span>
+            Settings
+          </a>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button class="btn btn-secondary" id="logoutBtn" type="button">Logout</button>
         </div>
-      </section>
-    </main>
+      </aside>
+
+      <main class="main">
+        <div class="container">
+          <section class="card" id="assigned">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Assigned Tasks</h2>
+                <p class="card__sub muted">Your active workload</p>
+              </div>
+            </div>
+            <div id="assignedList" class="list"></div>
+          </section>
+
+          <section class="card" id="history">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Completed</h2>
+                <p class="card__sub muted">Verified closures</p>
+              </div>
+            </div>
+            <div id="historyList" class="list"></div>
+          </section>
+
+          <section class="card" id="completion">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Submit Completion</h2>
+                <p class="card__sub muted">Capture a live photo (camera only) with GPS.</p>
+              </div>
+            </div>
+
+            <div class="stack">
+              <label class="label">
+                Select report
+                <select id="reportSelect" class="input"></select>
+              </label>
+
+              <div class="camera-shell">
+                <video id="video" class="video" autoplay playsinline></video>
+                <canvas id="canvas" class="hidden"></canvas>
+                <button id="captureBtn" class="capture" type="button">Capture</button>
+              </div>
+
+              <button id="submitCompletionBtn" class="btn" type="button">Send to Supervisor</button>
+              <p id="workerMsg" class="msg" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="card" id="settings">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Settings</h2>
+                <p class="card__sub muted">Account and session</p>
+              </div>
+            </div>
+            <div class="stack">
+              <button class="btn btn-secondary" id="logoutBtnInline" type="button">Logout</button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <aside class="sidebar sidebar--right" aria-label="User Activity">
+        <div class="sidepanel">
+          <div class="sidepanel__head">
+            <h2 class="sidepanel__title">Activity</h2>
+            <div class="sidepanel__sub muted">Tasks & status updates</div>
+          </div>
+          <div id="rightHistory" class="history" aria-live="polite"></div>
+        </div>
+      </aside>
+    </div>
 
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
+    <script src="/js/portal_ui.js"></script>
     <script src="/js/worker.js"></script>
     <script>
       (async () => {
@@ -58,6 +172,8 @@
           return;
         }
         document.getElementById("whoami").textContent = `Hello, ${getUserName()} (${getUserRole()})`;
+        var inlineLogout = document.getElementById("logoutBtnInline");
+        if (inlineLogout) inlineLogout.addEventListener("click", function () { document.getElementById("logoutBtn").click(); });
         await initWorker();
       })();
     </script>

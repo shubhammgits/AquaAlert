@@ -4,7 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Supervisor Dashboard • AquaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/portal.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -12,37 +16,162 @@
       crossorigin=""
     />
   </head>
-  <body>
-    <header class="topbar">
-      <div>
-        <div class="title">AquaAlert</div>
-        <div id="whoami" class="muted"></div>
-      </div>
-      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
-    </header>
+  <body class="portal">
+    <div class="app-layout">
+      <aside class="sidebar sidebar--left" aria-label="Sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__app">AquaAlert</div>
+          <div id="whoami" class="sidebar__who muted"></div>
+        </div>
 
-    <main class="container">
-      <section class="card">
-        <h2>Priority Clusters</h2>
-        <div id="clusterList" class="list"></div>
-      </section>
+        <nav class="nav" aria-label="Main">
+          <a class="nav__item" href="/">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10.5 12 3l9 7.5" />
+                <path d="M5 10v10h14V10" />
+              </svg>
+            </span>
+            Home
+          </a>
 
-      <section class="card">
-        <h2>Cluster Map</h2>
-        <div id="map" class="map"></div>
-      </section>
+          <a class="nav__item is-active" href="/supervisor_dashboard.html">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h7v7H4z" />
+                <path d="M13 4h7v7h-7z" />
+                <path d="M4 13h7v7H4z" />
+                <path d="M13 13h7v7h-7z" />
+              </svg>
+            </span>
+            Dashboard
+          </a>
 
-      <section class="card">
-        <h2>All Reports</h2>
-        <div id="allReports" class="list"></div>
-      </section>
+          <button class="nav__item" type="button" data-nav-toggle="createMenu" aria-expanded="false">
+            <span class="nav__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+            </span>
+            Features
+            <span class="nav__chev" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          </button>
+          <div class="nav__group" id="createMenu">
+            <a class="nav__sub" href="#overview">Overview</a>
+            <a class="nav__sub" href="#priority">Priority clusters</a>
+            <a class="nav__sub" href="#mapsec">Cluster map</a>
+            <a class="nav__sub" href="#reports">All reports</a>
+            <a class="nav__sub" href="#workers">Workers</a>
+            <a class="nav__sub" href="#verify">Verify completion</a>
+          </div>
+        </nav>
 
-      <section class="card">
-        <h2>Completion Verification</h2>
-        <p class="muted">Verify worker completion photos.</p>
-        <div id="verifyQueue" class="list"></div>
-      </section>
-    </main>
+        <div class="sidebar__footer">
+          <button class="btn btn-secondary" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="container">
+          <section class="card" id="overview">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Overview</h2>
+                <p class="card__sub muted">Live system snapshot</p>
+              </div>
+            </div>
+            <div class="stats-grid" aria-label="Overview stats">
+              <div class="stat">
+                <div class="stat__label">Total reports</div>
+                <div id="statTotal" class="stat__value">—</div>
+                <div class="stat__hint">All time</div>
+              </div>
+              <div class="stat">
+                <div class="stat__label">High severity</div>
+                <div id="statHigh" class="stat__value">—</div>
+                <div class="stat__hint">Needs attention</div>
+              </div>
+              <div class="stat">
+                <div class="stat__label">Pending</div>
+                <div id="statPending" class="stat__value">—</div>
+                <div class="stat__hint">Submitted / accepted</div>
+              </div>
+              <div class="stat">
+                <div class="stat__label">Resolved</div>
+                <div id="statResolved" class="stat__value">—</div>
+                <div class="stat__hint">Closed</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" id="priority">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Priority Clusters</h2>
+                <p class="card__sub muted">Highest priority hotspots</p>
+              </div>
+            </div>
+            <div id="clusterList" class="list"></div>
+          </section>
+
+          <section class="card" id="mapsec">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Cluster Map</h2>
+                <p class="card__sub muted">Live map of active clusters</p>
+              </div>
+            </div>
+            <div id="map" class="map"></div>
+          </section>
+
+          <section class="card" id="reports">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">All Reports</h2>
+                <p class="card__sub muted">Accept, assign workers, and monitor progress</p>
+              </div>
+            </div>
+            <div id="allReports" class="list"></div>
+          </section>
+
+          <section class="card" id="workers">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Worker Management</h2>
+                <p class="card__sub muted">Availability and recent location updates</p>
+              </div>
+              <button class="btn btn-secondary" id="refreshWorkersBtn" type="button">Refresh</button>
+            </div>
+            <div id="workerList" class="workers" aria-live="polite"></div>
+          </section>
+
+          <section class="card" id="verify">
+            <div class="card__head">
+              <div>
+                <h2 class="card__title">Completion Verification</h2>
+                <p class="card__sub muted">Verify worker completion photos</p>
+              </div>
+            </div>
+            <div id="verifyQueue" class="list"></div>
+          </section>
+        </div>
+      </main>
+
+      <aside class="sidebar sidebar--right" aria-label="Activity">
+        <div class="sidepanel">
+          <div class="sidepanel__head">
+            <h2 class="sidepanel__title">Activity</h2>
+            <div class="sidepanel__sub muted">Recent updates</div>
+          </div>
+          <div id="rightHistory" class="history" aria-live="polite"></div>
+        </div>
+      </aside>
+    </div>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -51,6 +180,7 @@
     ></script>
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
+    <script src="/js/portal_ui.js"></script>
     <script src="/js/map.js"></script>
     <script src="/js/supervisor.js"></script>
     <script>
@@ -64,6 +194,7 @@
         await initClusterMap("map", { withPriorityList: true });
         await refreshSupervisorViews();
         await refreshVerifyQueue();
+        if (window.refreshWorkersList) await window.refreshWorkersList();
       })();
     </script>
   </body>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="AquaAlert — Smart Early Warning for Water‑Borne Diseases. Citizen reporting, real-time hotspot detection, and verified action."
+    />
+
+    <title>AquaAlert — Smart Early Warning</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/static/landing/styles.css?v=20260221_3" />
+    <script defer src="/static/landing/script.js?v=20260221_3"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#home">Skip to content</a>
+
+    <!-- Background glows -->
+    <div class="bg" aria-hidden="true">
+      <div class="bg__glow bg__glow--cyan"></div>
+      <div class="bg__glow bg__glow--blue"></div>
+      <div class="bg__glow bg__glow--green"></div>
+      <div class="bg__grid"></div>
+    </div>
+
+    <!-- NAVBAR -->
+    <header class="nav" data-nav>
+      <div class="container nav__inner">
+        <div class="nav__pill" aria-label="Site navigation">
+          <a class="brand nav__brand" href="#home" aria-label="AquaAlert home">
+            <span class="brand__mark" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2c4.1 5.1 8 9.1 8 13.2A8 8 0 1 1 4 15.2C4 11.1 7.9 7.1 12 2Z"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <path
+                  d="M8.5 16.2c.7 1.9 2.5 3.3 4.6 3.3"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <span class="brand__text">AquaAlert</span>
+          </a>
+
+          <nav class="nav__links" aria-label="Primary">
+            <a class="nav__link" href="#home">Home</a>
+            <a class="nav__link" href="#how">How It Works</a>
+            <a class="nav__link" href="#features">Features</a>
+            <a class="nav__link" href="#portals">Portals</a>
+          </nav>
+
+          <div class="nav__actions">
+            <a class="nav__cta" href="/login.html">Dashboard / Login</a>
+            <button
+              class="hamburger"
+              type="button"
+              data-menu-button
+              aria-label="Open menu"
+              aria-controls="mobileMenu"
+              aria-expanded="false"
+            >
+              <span class="hamburger__lines" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div class="mobile" id="mobileMenu" data-mobile hidden>
+        <div class="mobile__panel" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <div class="mobile__top">
+            <span class="brand__text">AquaAlert</span>
+            <button class="mobile__close" type="button" data-menu-close aria-label="Close menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M6 6 18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <div class="mobile__links" role="menu">
+            <a role="menuitem" href="#home" class="mobile__link">Home</a>
+            <a role="menuitem" href="#how" class="mobile__link">How It Works</a>
+            <a role="menuitem" href="#features" class="mobile__link">Features</a>
+            <a role="menuitem" href="#portals" class="mobile__link">Portals</a>
+            <a role="menuitem" href="/login.html" class="mobile__link mobile__link--cta">Dashboard / Login</a>
+          </div>
+        </div>
+        <button class="mobile__backdrop" type="button" data-menu-backdrop aria-label="Close menu"></button>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <main id="home" class="hero">
+      <div class="container hero__inner">
+        <section class="hero__copy reveal" aria-label="Hero" style="--d: 0ms">
+          <p class="pill">Smart Early Warning • Water‑Borne Diseases</p>
+          <h1 class="hero__title">Prevent Water‑Borne Diseases Before They Spread</h1>
+          <p class="hero__sub">Citizen reporting, real-time hotspot detection, and verified action.</p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" data-ripple href="/login.html?role=user">Report Issue</a>
+            <a class="btn btn--secondary" data-ripple href="/login.html?role=supervisor">Supervisor Login</a>
+          </div>
+
+          <div class="hero__meta">
+            <div class="meta">
+              <span class="meta__dot meta__dot--green" aria-hidden="true"></span>
+              <span class="meta__text">Citizen reports → verification → action</span>
+            </div>
+            <div class="meta">
+              <span class="meta__dot meta__dot--cyan" aria-hidden="true"></span>
+              <span class="meta__text">Geo-tagged evidence and audit-friendly workflow</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="hero__art" aria-label="Live preview">
+          <div class="float float--1" aria-hidden="true">
+            <div class="card card--glass">
+              <div class="card__top">
+                <span class="badge badge--cyan">New report</span>
+                <span class="mini">Just now</span>
+              </div>
+              <div class="card__title">Standing water near school</div>
+              <div class="card__row">
+                <span class="chip">GPS locked</span>
+                <span class="chip">Photo verified</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="float float--2" aria-hidden="true">
+            <div class="card card--glass">
+              <div class="card__top">
+                <span class="badge badge--blue">Risk</span>
+                <span class="mini">Triage</span>
+              </div>
+              <div class="card__title">Severity: <span class="sev">High</span></div>
+              <div class="bar"><span class="bar__fill"></span></div>
+              <div class="card__row">
+                <span class="chip">Hotspot detected</span>
+                <span class="chip">Cluster #12</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="float float--3" aria-hidden="true">
+            <div class="card card--glass">
+              <div class="card__top">
+                <span class="badge badge--green">Action</span>
+                <span class="mini">NGO dispatch</span>
+              </div>
+              <div class="card__title">Worker assigned</div>
+              <div class="card__row">
+                <span class="chip">QR navigation</span>
+                <span class="chip">On-site proof</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__ring" aria-hidden="true"></div>
+        </aside>
+      </div>
+
+      <div class="hero__fade" aria-hidden="true"></div>
+    </main>
+
+    <!-- ABOUT / TIMELINE -->
+    <section class="section" id="about" aria-label="About">
+      <div class="container">
+        <div class="section__head reveal" style="--d: 0ms">
+          <h2 class="section__title">What is AquaAlert?</h2>
+          <p class="section__sub">A fast, evidence-first pipeline that turns citizen observations into verified action.</p>
+        </div>
+
+        <div class="timeline">
+          <article class="step reveal" style="--d: 60ms">
+            <div class="step__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.5 12.5 11 14l3.5-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 21a9 9 0 1 0-9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="step__title">Citizens report hazards</h3>
+            <p class="step__text">Capture a photo with GPS accuracy checks for trustworthy evidence.</p>
+          </article>
+
+          <article class="step reveal" style="--d: 120ms">
+            <div class="step__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M7 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M7 16h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="step__title">Clustering & triage</h3>
+            <p class="step__text">Group nearby reports into hotspots to help prioritize action.</p>
+          </article>
+
+          <article class="step reveal" style="--d: 180ms">
+            <div class="step__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="step__title">Supervisor verification</h3>
+            <p class="step__text">Review the evidence and dispatch a worker with QR navigation.</p>
+          </article>
+
+          <article class="step reveal" style="--d: 240ms">
+            <div class="step__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 7 10 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <h3 class="step__title">On-site proof & closure</h3>
+            <p class="step__text">Workers upload geo-stamped completion photos for audit-friendly closure.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PORTALS -->
+    <section class="section" id="portals" aria-label="Portals">
+      <div class="container">
+        <div class="section__head reveal" style="--d: 0ms">
+          <h2 class="section__title">Choose your portal</h2>
+          <p class="section__sub">Role-based dashboards for citizens, supervisors, and workers.</p>
+        </div>
+
+        <div class="cards">
+          <a class="portal reveal" style="--d: 60ms" href="/login.html?role=user" aria-label="Open Public User portal">
+            <div class="portal__head">
+              <span class="portal__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M12 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M12 7.5h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                </svg>
+              </span>
+              <div>
+                <div class="portal__tag">Public User</div>
+                <h3 class="portal__title">Report hazards</h3>
+              </div>
+            </div>
+            <p class="portal__text">Capture photo + GPS evidence and submit instantly.</p>
+            <div class="portal__chips" aria-label="Key features">
+              <span class="chip chip--small">Camera-only</span>
+              <span class="chip chip--small">GPS accuracy</span>
+              <span class="chip chip--small">Fast submit</span>
+            </div>
+            <span class="portal__btn" aria-hidden="true">Open portal</span>
+          </a>
+
+          <a class="portal reveal" style="--d: 120ms" href="/login.html?role=supervisor" aria-label="Open Supervisor portal">
+            <div class="portal__head">
+              <span class="portal__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3 20 7v6c0 5-3.5 8-8 8s-8-3-8-8V7l8-4Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M9.5 12.5 11 14l3.5-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <div>
+                <div class="portal__tag">Supervisor</div>
+                <h3 class="portal__title">Verify & dispatch</h3>
+              </div>
+            </div>
+            <p class="portal__text">Review reports, assign workers, and manage districts.</p>
+            <div class="portal__chips" aria-label="Key features">
+              <span class="chip chip--small">Verification</span>
+              <span class="chip chip--small">Assignments</span>
+              <span class="chip chip--small">Audit trail</span>
+            </div>
+            <span class="portal__btn" aria-hidden="true">Open portal</span>
+          </a>
+
+          <a class="portal reveal" style="--d: 180ms" href="/login.html?role=worker" aria-label="Open Field Worker portal">
+            <div class="portal__head">
+              <span class="portal__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M12 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </span>
+              <div>
+                <div class="portal__tag">Field Worker</div>
+                <h3 class="portal__title">Resolve on-site</h3>
+              </div>
+            </div>
+            <p class="portal__text">Navigate via QR and upload geo-stamped completion proof.</p>
+            <div class="portal__chips" aria-label="Key features">
+              <span class="chip chip--small">QR navigation</span>
+              <span class="chip chip--small">Live GPS</span>
+              <span class="chip chip--small">Completion proof</span>
+            </div>
+            <span class="portal__btn" aria-hidden="true">Open portal</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features" aria-label="Features">
+      <div class="container">
+        <div class="section__head reveal" style="--d: 0ms">
+          <h2 class="section__title">Built for trustworthy action</h2>
+          <p class="section__sub">Designed for evidence, speed, and accountability.</p>
+        </div>
+
+        <div class="grid">
+          <article class="feat reveal" style="--d: 60ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 18v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M2 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M18 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </div>
+            <h3 class="feat__title">Geo‑Tagged Reports</h3>
+            <p class="feat__text">GPS accuracy checks keep evidence reliable and actionable.</p>
+          </article>
+          <article class="feat reveal" style="--d: 100ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 7h4l2-2h4l2 2h4v12H4V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <path d="M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </div>
+            <h3 class="feat__title">Photo Evidence</h3>
+            <p class="feat__text">Clear photo evidence helps supervisors verify and dispatch faster.</p>
+          </article>
+          <article class="feat reveal" style="--d: 140ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 17V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 17V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M17 17V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="feat__title">Real‑time Alerts</h3>
+            <p class="feat__text">Prioritize urgent clusters and respond faster to outbreaks.</p>
+          </article>
+          <article class="feat reveal" style="--d: 180ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" stroke="currentColor" stroke-width="2" />
+                <path d="M12 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </div>
+            <h3 class="feat__title">Hotspot Detection Map</h3>
+            <p class="feat__text">Surface patterns from clustered reports to spot risk zones.</p>
+          </article>
+          <article class="feat reveal" style="--d: 220ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4h6v6H4V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M14 4h6v6h-6V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M4 14h6v6H4v-6Z" stroke="currentColor" stroke-width="2" />
+                <path d="M14 14h3v3h-3v-3Z" stroke="currentColor" stroke-width="2" />
+                <path d="M17 17h3v3h-3v-3Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </div>
+            <h3 class="feat__title">QR Navigation</h3>
+            <p class="feat__text">Fast dispatch + navigation for on-site field operations.</p>
+          </article>
+          <article class="feat reveal" style="--d: 260ms">
+            <div class="feat__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 21a9 9 0 1 0-9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="feat__title">Crowd Verification</h3>
+            <p class="feat__text">Supervisor review and proof-based closure for accountability.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how" aria-label="How it works">
+      <div class="container">
+        <div class="section__head reveal" style="--d: 0ms">
+          <h2 class="section__title">How it works</h2>
+          <p class="section__sub">A simple flow from community input to verified resolution.</p>
+        </div>
+
+        <div class="flowline reveal" style="--d: 60ms" aria-label="Process flow">
+          <div class="flow">
+            <div class="flow__item reveal" style="--d: 60ms" aria-label="Capture Image">
+              <div class="flow__num">1</div>
+              <div class="flow__body">
+                <div class="flow__title">Capture Image</div>
+                <div class="flow__text">Photo + GPS evidence with accuracy gating.</div>
+              </div>
+            </div>
+            <div class="flow__item reveal" style="--d: 120ms" aria-label="Review">
+              <div class="flow__num">2</div>
+              <div class="flow__body">
+                <div class="flow__title">Review</div>
+                <div class="flow__text">Supervisors review report details and evidence.</div>
+              </div>
+            </div>
+            <div class="flow__item reveal" style="--d: 180ms" aria-label="Risk Detection">
+              <div class="flow__num">3</div>
+              <div class="flow__body">
+                <div class="flow__title">Risk Detection</div>
+                <div class="flow__text">Clustering identifies hotspots and priorities.</div>
+              </div>
+            </div>
+            <div class="flow__item reveal" style="--d: 240ms" aria-label="NGO Action">
+              <div class="flow__num">4</div>
+              <div class="flow__body">
+                <div class="flow__title">NGO Action</div>
+                <div class="flow__text">Verification, dispatch, and proof-based closure.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" aria-label="Call to action">
+      <div class="container cta__inner reveal" style="--d: 0ms">
+        <h2 class="cta__title">Be part of the early warning network.</h2>
+        <p class="cta__sub">Help your community respond faster with trusted, geo-tagged evidence.</p>
+        <div class="cta__actions">
+          <a class="btn btn--primary" data-ripple href="/login.html?role=user">Submit Report</a>
+          <a class="btn btn--secondary" data-ripple href="mailto:contact@aquaalert.org">Partner With Us</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer" aria-label="Footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <div class="brand__text">AquaAlert</div>
+          <div class="footer__muted">Smart Early Warning for Water Borne Diseases</div>
+          <a class="footer__email" href="mailto:contact@aquaalert.org">contact@aquaalert.org</a>
+        </div>
+        <div class="footer__copy">© <span data-year></span> AquaAlert</div>
+      </div>
+    </footer>
+  </body>
+</html>

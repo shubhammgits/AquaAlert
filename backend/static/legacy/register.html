@@ -3,62 +3,114 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Register • AquaAlert</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <title>AquaAlert - Create Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/auth.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="app-header">
-        <h1>Register</h1>
-        <p class="muted">Create your AquaAlert account</p>
-      </header>
+    <main class="auth">
+      <section class="auth__card" role="region" aria-label="Create account">
+        <header class="auth__head">
+          <h1 class="auth__title">Create Account</h1>
+          <p class="auth__sub">Join AquaAlert and access role-based reporting dashboards.</p>
+        </header>
 
-      <section class="card">
-        <form id="registerForm" class="stack">
-          <label class="label">
-            Name
-            <input class="input" name="name" type="text" autocomplete="name" required />
-          </label>
-          <label class="label">
-            Email
-            <input class="input" name="email" type="email" autocomplete="email" required />
-          </label>
-          <label class="label">
-            Password
-            <input class="input" name="password" type="password" autocomplete="new-password" required />
-          </label>
-          <label class="label">
-            Phone (optional)
-            <input class="input" name="phone" type="tel" autocomplete="tel" />
-          </label>
-          <label class="label">
-            District (required for workers)
-            <input class="input" name="district" type="text" autocomplete="address-level2" />
-          </label>
-          <label class="label">
-            State
-            <input class="input" name="state" type="text" autocomplete="address-level1" />
-          </label>
-          <label class="label">
-            City
-            <input class="input" name="city" type="text" autocomplete="address-level2" />
-          </label>
-          <label class="label">
-            Role
-            <select class="input" name="role" required>
-              <option value="user" selected>Citizen User</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="worker">Worker</option>
-            </select>
-          </label>
-          <button class="btn" type="submit">Register</button>
-          <p class="muted">Already have an account? <a href="/login.html">Login</a></p>
-          <p id="registerMsg" class="msg" aria-live="polite"></p>
+        <form id="registerForm" class="form" autocomplete="off">
+          <div class="grid">
+            <div class="field col-3">
+              <div class="label">User Name</div>
+              <div class="control">
+                <input class="input" type="text" name="name" required placeholder="Full Name" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">Email</div>
+              <div class="control">
+                <input class="input" type="email" name="email" required placeholder="name@aqua.com" inputmode="email" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">Phone No.</div>
+              <div class="control">
+                <input class="input" type="text" name="phone" required placeholder="+91 00000 00000" inputmode="tel" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">City</div>
+              <div class="control">
+                <input class="input" type="text" name="city" required placeholder="City" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">District</div>
+              <div class="control">
+                <input class="input" type="text" name="district" required placeholder="District" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">State</div>
+              <div class="control">
+                <input class="input" type="text" name="state" required placeholder="State" />
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">Designated Role</div>
+              <div class="control">
+                <select class="select" name="role" required>
+                  <option value="user">User</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="worker">Worker</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field col-3">
+              <div class="label">Set Password</div>
+              <div class="control">
+                <input id="registerPassword" class="input" type="password" name="password" required placeholder="Password" />
+                <button
+                  class="toggle"
+                  type="button"
+                  aria-label="Show or hide password"
+                  aria-controls="registerPassword"
+                  data-toggle-password
+                ></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Sign Up</button>
+            <p id="registerMsg" class="msg"></p>
+            <p class="foot">Already a verified user? <a id="loginLink" href="/login.html">Log In</a></p>
+          </div>
         </form>
       </section>
     </main>
 
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var role = params.get("role");
+        if (!role) return;
+
+        var roleSel = document.querySelector('select[name="role"]');
+        if (roleSel) roleSel.value = role;
+
+        var loginLink = document.getElementById("loginLink");
+        if (loginLink) loginLink.href = "/login.html?role=" + encodeURIComponent(role);
+      })();
+    </script>
     <script src="/js/api.js"></script>
+    <script src="/js/auth_ui.js"></script>
     <script src="/js/auth.js"></script>
   </body>
 </html>

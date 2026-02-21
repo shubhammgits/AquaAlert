@@ -3,34 +3,64 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login • AquaAlert</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <title>AquaAlert - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/auth.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="app-header">
-        <h1>Login</h1>
-        <p class="muted">Use your AquaAlert account</p>
-      </header>
+    <main class="auth">
+      <section class="auth__card" role="region" aria-label="Login">
+        <header class="auth__head">
+          <h1 class="auth__title">Login Account</h1>
+          <p class="auth__sub">Please fill in your details (Auto-fill is disabled for security).</p>
+        </header>
 
-      <section class="card">
-        <form id="loginForm" class="stack">
-          <label class="label">
-            Email
-            <input class="input" name="email" type="email" autocomplete="email" required />
-          </label>
-          <label class="label">
-            Password
-            <input class="input" name="password" type="password" autocomplete="current-password" required />
-          </label>
-          <button class="btn" type="submit">Login</button>
-          <p class="muted">No account? <a href="/register.html">Register</a></p>
-          <p id="loginMsg" class="msg" aria-live="polite"></p>
+        <form id="loginForm" class="form" autocomplete="off">
+          <div class="grid">
+            <div class="field col-6">
+              <div class="label">Email</div>
+              <div class="control">
+                <input class="input" type="email" name="email" required placeholder="name@aqua.com" inputmode="email" />
+              </div>
+            </div>
+
+            <div class="field col-6">
+              <div class="label">Password</div>
+              <div class="control">
+                <input id="loginPassword" class="input" type="password" name="password" required placeholder="••••••••" />
+                <button
+                  class="toggle"
+                  type="button"
+                  aria-label="Show or hide password"
+                  aria-controls="loginPassword"
+                  data-toggle-password
+                ></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Log In</button>
+            <p id="loginMsg" class="msg"></p>
+            <p class="foot">New to the system? <a id="createAccountLink" href="/register.html">Register Profile</a></p>
+          </div>
         </form>
       </section>
     </main>
 
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var role = params.get("role");
+        if (!role) return;
+        var link = document.getElementById("createAccountLink");
+        if (link) link.href = "/register.html?role=" + encodeURIComponent(role);
+      })();
+    </script>
     <script src="/js/api.js"></script>
+    <script src="/js/auth_ui.js"></script>
     <script src="/js/auth.js"></script>
   </body>
 </html>

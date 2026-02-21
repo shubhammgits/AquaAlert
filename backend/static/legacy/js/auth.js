@@ -10,7 +10,34 @@ function clearSession() {
   localStorage.removeItem("aa_name");
 }
 
+function _decodeJwtPayload(token) {
+  try {
+    const parts = String(token || "").split(".");
+    if (parts.length < 2) return null;
+    let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    const json = atob(b64);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function ensureSessionFromToken() {
+  const token = localStorage.getItem("aa_token");
+  if (!token) return;
+
+  const role = localStorage.getItem("aa_role");
+  if (role) return;
+
+  const payload = _decodeJwtPayload(token);
+  if (payload && payload.role) {
+    localStorage.setItem("aa_role", String(payload.role));
+  }
+}
+
 function getUserRole() {
+  ensureSessionFromToken();
   return localStorage.getItem("aa_role") || "";
 }
 
@@ -21,6 +48,7 @@ function getUserName() {
 function requireAuthOrRedirect() {
   const token = localStorage.getItem("aa_token");
   if (!token) window.location.href = "/login.html";
+  ensureSessionFromToken();
 }
 
 async function handleLogin(e) {
@@ -101,6 +129,8 @@ function applyRoleHint() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  ensureSessionFromToken();
+
   if ("serviceWorker" in navigator) {
     try {
       navigator.serviceWorker.register("/service-worker.js").then((reg) => {

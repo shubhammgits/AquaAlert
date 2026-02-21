@@ -8,9 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.app.database import engine
-from backend.app.models import Base
-from backend.app.migrations import ensure_sqlite_schema
+from backend.app.database import ensure_indexes, get_mongo_database
 from backend.app.routes.auth_routes import router as auth_router
 from backend.app.routes.cluster_routes import router as cluster_router
 from backend.app.routes.report_routes import router as report_router
@@ -21,15 +19,35 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 BACKEND_STATIC_DIR = Path(__file__).resolve().parent / "static"
 FRONTEND_DIST_DIR = ROOT_DIR / "frontend" / "dist"
 LEGACY_DIR = BACKEND_STATIC_DIR / "legacy"
+LANDING_DIR = BACKEND_STATIC_DIR / "landing"
 
-# Load local environment variables (e.g. GEMINI_API_KEY, JWT_SECRET) from `.env` if present.
+# Load local environment variables (e.g. JWT_SECRET) from `.env` if present.
 # This keeps secrets out of source code.
+def _load_dotenv_fallback(env_path: Path) -> None:
+    if not env_path.exists():
+        return
+    try:
+        for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = value
+    except Exception:
+        return
+
+
 try:  # pragma: no cover
     from dotenv import load_dotenv
 
     load_dotenv(ROOT_DIR / ".env")
 except Exception:
-    pass
+    _load_dotenv_fallback(ROOT_DIR / ".env")
 
 
 def create_app() -> FastAPI:
@@ -62,25 +80,27 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def _startup() -> None:
-        Base.metadata.create_all(bind=engine)
-        ensure_sqlite_schema(engine)
+        ensure_indexes(get_mongo_database())
 
     @app.get("/health")
     def health() -> dict:
         return {
             "ok": True,
-            "ai_configured": bool(os.getenv("GEMINI_API_KEY")),
             "jwt_secret_configured": bool(os.getenv("JWT_SECRET")) and os.getenv("JWT_SECRET") != "change-me",
         }
 
     @app.get("/")
     def index() -> FileResponse:
+        if (LANDING_DIR / "landing.html").exists():
+            return FileResponse(str(LANDING_DIR / "landing.html"))
         if FRONTEND_DIST_DIR.exists() and (FRONTEND_DIST_DIR / "index.html").exists():
             return FileResponse(str(FRONTEND_DIST_DIR / "index.html"))
         return FileResponse(str(LEGACY_DIR / "index.html"))
 
     @app.get("/index.html")
     def index_html() -> FileResponse:
+        if (LANDING_DIR / "landing.html").exists():
+            return FileResponse(str(LANDING_DIR / "landing.html"))
         if FRONTEND_DIST_DIR.exists() and (FRONTEND_DIST_DIR / "index.html").exists():
             return FileResponse(str(FRONTEND_DIST_DIR / "index.html"))
         return FileResponse(str(LEGACY_DIR / "index.html"))

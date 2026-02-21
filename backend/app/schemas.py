@@ -57,14 +57,6 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
-class AnalysisOut(BaseModel):
-    problem: list[str] = []
-    causes: list[str] = []
-    precautions: list[str] = []
-    prevention: list[str] = []
-    severity: Severity = "Low"
-
-
 class ReportCreateIn(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
@@ -109,7 +101,6 @@ class ReportOut(BaseModel):
     district: str
     state: str = ""
     city: str = ""
-    ai: AnalysisOut
     severity: Severity
     status: ReportStatus
     cluster_id: str

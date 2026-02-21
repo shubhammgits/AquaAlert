@@ -95,6 +95,14 @@ async function refreshSupervisorViews() {
   holder.innerHTML = "";
   try {
     const reports = await API.request("/reports");
+
+    try {
+      if (typeof window.renderSupervisorStats === "function") window.renderSupervisorStats(reports);
+      if (typeof window.renderSupervisorRightHistory === "function") window.renderSupervisorRightHistory(reports);
+    } catch {
+      // ignore UI hooks
+    }
+
     if (!reports.length) {
       holder.innerHTML = `<div class="muted">No reports yet.</div>`;
       return;

@@ -1,6 +1,7 @@
 :root {
+  /* Match auth (login/register) palette */
   --bg: #0b1220;
-  --card: #111a2e;
+  --card: #0c1228;
   --text: #e6eefc;
   --muted: rgba(230, 238, 252, 0.75);
   --border: rgba(230, 238, 252, 0.12);
@@ -8,6 +9,10 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -23,8 +28,13 @@ a {
 
 .container {
   padding: 16px;
-  max-width: 860px;
+  max-width: 1120px;
   margin: 0 auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 .app-header {
@@ -139,7 +149,7 @@ a {
 }
 
 .map {
-  height: 320px;
+  height: clamp(240px, 38vh, 420px);
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -155,6 +165,7 @@ a {
   border-radius: 14px;
   padding: 12px;
   background: rgba(255, 255, 255, 0.04);
+  overflow-wrap: anywhere;
 }
 
 .pill {
@@ -201,5 +212,20 @@ a {
   }
   .actions {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .capture {
+    width: 64px;
+    height: 64px;
+    bottom: 10px;
   }
 }

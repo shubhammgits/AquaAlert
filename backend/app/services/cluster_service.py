@@ -2,10 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
-from backend.app.models import Report, Validation
+from pymongo.database import Database
 
 SEVERITY_WEIGHT = {"Low": 1, "Medium": 3, "High": 5}
 
@@ -19,18 +16,23 @@ def _cluster_center(cluster_id: str) -> tuple[float, float]:
     return float(lat_s), float(lon_s)
 
 
-def get_clusters(db: Session, *, district: str | None = None):
-    q = select(Report.id, Report.cluster_id, Report.severity)
+def get_clusters(db: Database, *, district: str | None = None):
+    query: dict = {}
     if district:
-        q = q.where(Report.district == district)
-    reports = db.execute(q).all()
+        query["district"] = district
+    reports = list(db["reports"].find(query, {"id": 1, "cluster_id": 1, "severity": 1}))
     counts: dict[str, int] = defaultdict(int)
     max_weight: dict[str, int] = defaultdict(int)
     max_sev: dict[str, str] = defaultdict(lambda: "Low")
 
     report_ids_by_cluster: dict[str, list[int]] = defaultdict(list)
 
-    for report_id, cluster_id, severity in reports:
+    for r in reports:
+        report_id = int(r.get("id", 0))
+        cluster_id = str(r.get("cluster_id") or "")
+        severity = str(r.get("severity") or "Low")
+        if not cluster_id:
+            continue
         counts[cluster_id] += 1
         report_ids_by_cluster[cluster_id].append(int(report_id))
         w = SEVERITY_WEIGHT.get(severity or "Low", 1)
@@ -38,14 +40,16 @@ def get_clusters(db: Session, *, district: str | None = None):
             max_weight[cluster_id] = w
             max_sev[cluster_id] = severity or "Low"
 
-    votes = db.execute(select(Validation.report_id, Validation.vote)).all()
+    votes = list(db["validations"].find({}, {"report_id": 1, "vote": 1}))
     agree_by_report: dict[int, int] = defaultdict(int)
     disagree_by_report: dict[int, int] = defaultdict(int)
-    for rid, vote in votes:
-        if int(vote) == 1:
-            agree_by_report[int(rid)] += 1
+    for v in votes:
+        rid = int(v.get("report_id", 0))
+        vote = int(v.get("vote", 0))
+        if vote == 1:
+            agree_by_report[rid] += 1
         else:
-            disagree_by_report[int(rid)] += 1
+            disagree_by_report[rid] += 1
 
     agree_by_cluster: dict[str, int] = defaultdict(int)
     disagree_by_cluster: dict[str, int] = defaultdict(int)

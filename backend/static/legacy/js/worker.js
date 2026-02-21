@@ -2,6 +2,9 @@ let _workerStream = null;
 let _workerCaptured = "";
 let _locTimer = null;
 
+let _assignedCache = [];
+let _historyCache = [];
+
 function escapeHtml(s) {
   return String(s)
     .replaceAll("&", "&amp;")
@@ -16,6 +19,36 @@ async function initWorker() {
   startLocationPings();
   await refreshAssigned();
   await refreshHistory();
+  renderRightHistory();
+}
+
+function fmtDateShort(iso) {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
+function badgeForStatus(status) {
+  const s = String(status || "").toLowerCase();
+  if (s === "closed") return { cls: "badge--completed", label: "Completed" };
+  if (s === "completed") return { cls: "badge--progress", label: "In Progress" };
+  if (s === "assigned") return { cls: "badge--assigned", label: "Assigned" };
+  if (s === "rejected") return { cls: "badge--critical", label: "Needs Action" };
+  return { cls: "badge--pending", label: "Pending" };
+}
+
+function goToCompletion(reportId) {
+  try {
+    const sel = document.getElementById("reportSelect");
+    if (sel && reportId) sel.value = String(reportId);
+    window.location.hash = "#completion";
+  } catch {
+    // ignore
+  }
 }
 
 function startLocationPings() {
@@ -99,9 +132,14 @@ async function refreshHistory() {
   }
 
   if (!rows.length) {
-    holder.innerHTML = `<div class="muted">No verified completions yet.</div>`;
+    holder.innerHTML = `<div class="empty-state">No verified completions yet.</div>`;
+    _historyCache = [];
+    renderRightHistory();
     return;
   }
+
+  _historyCache = rows;
+  renderRightHistory();
 
   holder.innerHTML = rows
     .map((r) => {
@@ -125,7 +163,7 @@ async function refreshHistory() {
           <div class="item">
             <div class="row">
               <span class="pill">${escapeHtml(r.severity)}</span>
-              <span class="pill">closed</span>
+              <span class="badge badge--completed">Completed</span>
               <span class="muted">Report #${r.id}</span>
             </div>
             ${verifiedAt ? `<div class="muted">Verified: ${escapeHtml(verifiedAt)}</div>` : ""}
@@ -195,9 +233,14 @@ async function refreshAssigned() {
   }
 
   if (!reports.length) {
-    list.innerHTML = `<div class="muted">No assigned tasks right now.</div>`;
+    list.innerHTML = `<div class="empty-state">No assigned tasks right now.</div>`;
+    _assignedCache = [];
+    renderRightHistory();
     return;
   }
+
+  _assignedCache = reports;
+  renderRightHistory();
 
   reports.forEach((r) => {
     const opt = document.createElement("option");
@@ -208,25 +251,111 @@ async function refreshAssigned() {
 
   list.innerHTML = reports
     .map(
-      (r) => `
-    <div class="item">
-      <div class="row">
-        <span class="pill">${r.severity}</span>
-        <span class="pill">${r.status}</span>
-        <span class="muted">Report #${r.id}</span>
-      </div>
-      <div class="muted">${escapeHtml(statusHint(r))}</div>
-      ${renderProgress(r.status)}
-      <div class="muted">District: ${escapeHtml(r.district || "")}</div>
-      <div class="muted">Contact: ${escapeHtml(r.contact_phone || "")}</div>
-      ${r.resolution_message ? `<div class="muted">${escapeHtml(r.resolution_message)}</div>` : ""}
-      <div class="actions">
-        <a class="btn btn-secondary" href="https://www.google.com/maps?q=${r.latitude},${r.longitude}" target="_blank" rel="noreferrer">Open in Maps</a>
-      </div>
-    </div>
-  `
+      (r) => {
+        const badge = badgeForStatus(r.status);
+        return `
+          <div class="item">
+            <div class="row">
+              <span class="pill">${escapeHtml(r.severity)}</span>
+              <span class="badge ${badge.cls}">${badge.label}</span>
+              <span class="muted">Report #${escapeHtml(r.id)}</span>
+            </div>
+            <div class="muted">${escapeHtml(statusHint(r))}</div>
+            ${renderProgress(r.status)}
+            <div class="muted">District: ${escapeHtml(r.district || "")}</div>
+            <div class="muted">Contact: ${escapeHtml(r.contact_phone || "")}</div>
+            ${r.resolution_message ? `<div class="muted">${escapeHtml(r.resolution_message)}</div>` : ""}
+            <div class="actions">
+              <a class="btn btn-secondary" href="https://www.google.com/maps?q=${r.latitude},${r.longitude}" target="_blank" rel="noreferrer">Open Map</a>
+              <button class="btn" type="button" onclick="goToCompletion(${Number(r.id) || 0})">Submit Completion</button>
+            </div>
+          </div>
+        `;
+      }
     )
     .join("");
+}
+
+function renderRightHistory() {
+  const root = document.getElementById("rightHistory");
+  if (!root) return;
+
+  const combined = [];
+  _assignedCache.forEach((r) => combined.push({ kind: "assigned", r }));
+  _historyCache.forEach((r) => combined.push({ kind: "history", r }));
+
+  if (!combined.length) {
+    root.innerHTML = `<div class="empty-state">No previous reports yet.</div>`;
+    return;
+  }
+
+  root.innerHTML = combined
+    .slice(0, 20)
+    .map(({ kind, r }) => {
+      const id = escapeHtml(r.id || "");
+      const title = `R-${id}`;
+      const date = fmtDateShort(r.created_at || r.completed_at || r.completion_verified_at);
+      const loc = escapeHtml(r.district || "");
+      const meta = [date, loc].filter(Boolean).join(" • ");
+
+      const badge = badgeForStatus(kind === "history" ? "closed" : r.status);
+
+      const actions = [];
+      actions.push(
+        `<a class="btn btn-secondary" href="https://www.google.com/maps?q=${r.latitude},${r.longitude}" target="_blank" rel="noreferrer">Open Map</a>`
+      );
+      if (r.completion_image_url) {
+        actions.push(
+          `<a class="btn btn-secondary" href="${r.completion_image_url}" target="_blank" rel="noreferrer">Completion Photo</a>`
+        );
+      }
+      if (kind !== "history") {
+        actions.push(`<button class="btn" type="button" onclick="goToCompletion(${Number(r.id) || 0})">Submit</button>`);
+      }
+
+      const bodyBits = [];
+      bodyBits.push(`<div class="muted">Severity: ${escapeHtml(r.severity || "")}</div>`);
+      if (r.resolution_message) bodyBits.push(`<div class="muted">${escapeHtml(r.resolution_message)}</div>`);
+
+      return `
+        <div class="hitem" data-hitem>
+          <button class="hitem__head" type="button" data-hitem-toggle>
+            <div>
+              <div class="hitem__title">${title}</div>
+              <div class="hitem__meta">${meta}</div>
+            </div>
+            <span class="badge ${badge.cls}">${badge.label}</span>
+          </button>
+          <div class="hitem__body" data-hitem-body>
+            <div class="hitem__bodyInner">
+              ${bodyBits.join("")}
+              <div class="actions">${actions.join("")}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  wireHistoryToggles(root);
+}
+
+function wireHistoryToggles(root) {
+  if (!root) return;
+  const items = root.querySelectorAll("[data-hitem]");
+  items.forEach((item) => {
+    const btn = item.querySelector("[data-hitem-toggle]");
+    const body = item.querySelector("[data-hitem-body]");
+    if (!btn || !body) return;
+    btn.addEventListener("click", () => {
+      const isOpen = item.classList.toggle("is-open");
+      if (isOpen) {
+        body.style.maxHeight = body.scrollHeight + "px";
+      } else {
+        body.style.maxHeight = "0px";
+      }
+    });
+  });
 }
 
 async function submitCompletion() {
