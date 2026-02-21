@@ -2,13 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
       content="AquaAlert — Smart Early Warning for Water‑Borne Diseases. Citizen reporting, real-time hotspot detection, and verified action."
     />
+    <meta name="theme-color" content="#00d4ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AquaAlert" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <title>AquaAlert — Smart Early Warning</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json" />
+    
+    <!-- Favicons & App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/icons/icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/icons/icon-120x120.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,6 +35,17 @@
 
     <link rel="stylesheet" href="/static/landing/styles.css?v=20260221_3" />
     <script defer src="/static/landing/script.js?v=20260221_3"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/static/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
   </head>
 
   <body>

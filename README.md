@@ -1,4 +1,4 @@
-# 💧 AquaAlert
+# AquaAlert
 
 > **Smart Early Warning System for Water-Borne Diseases**
 
@@ -11,24 +11,7 @@
 
 ---
 
-## 📋 Table of Contents
-
-- [Problem Statement](#-problem-statement)
-- [Our Solution](#-our-solution)
-- [Key Features](#-key-features)
-- [System Architecture](#-system-architecture)
-- [Tech Stack](#-tech-stack)
-- [User Roles & Workflows](#-user-roles--workflows)
-- [Screenshots](#-screenshots)
-- [Installation & Setup](#-installation--setup)
-- [API Endpoints](#-api-endpoints)
-- [Database Schema](#-database-schema)
-- [Future Scope](#-future-scope)
-- [Team](#-team)
-
----
-
-## 🎯 Problem Statement
+## Problem Statement
 
 **Water-borne diseases** like cholera, typhoid, and dengue affect millions globally, especially in developing regions. Key challenges include:
 
@@ -39,7 +22,7 @@
 
 ---
 
-## 💡 Our Solution
+## Our Solution
 
 **AquaAlert** is a comprehensive early warning platform that transforms citizen observations into verified, accountable action through:
 
@@ -51,41 +34,41 @@
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 📍 Geo-Tagged Reports
+### Geo-Tagged Reports
 - GPS accuracy checks (rejects if accuracy > 100m)
 - Automatic reverse geocoding for district/city
 - Photo evidence with metadata preservation
 
-### 🗺️ Hotspot Detection & Clustering
+### Hotspot Detection & Clustering
 - Proximity-based clustering algorithm groups nearby reports
 - Dynamic severity escalation based on community votes
 - Priority scoring: `report_count × severity_weight`
 
-### ✅ Community Validation
+### Community Validation
 - Nearby users can upvote/downvote reports
 - Validation affects cluster severity (escalation rules)
 - Prevents false reports through crowd verification
 
-### 📱 QR Navigation System
+### QR Navigation System
 - Auto-generated QR codes for each report
 - One-scan navigation to exact location
 - Speeds up field worker dispatch
 
-### 🔒 Role-Based Access Control
+### Role-Based Access Control
 - **Users**: Report hazards, track status, validate nearby reports
 - **Supervisors**: Accept/reject reports, assign workers, verify completion
 - **Workers**: View assignments, navigate via QR, upload completion proof
 
-### 📊 Real-Time Dashboard
+### Real-Time Dashboard
 - Live report status tracking
 - Cluster visualization on map
 - Worker availability management
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -122,7 +105,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -153,7 +136,7 @@ python-dotenv>=1.0
 
 ## 👥 User Roles & Workflows
 
-### 🧑 Public User (Citizen)
+### Public User (Citizen)
 ```
 Capture Photo → Check GPS Accuracy → Add Description → Submit Report → Track Status
                                                               │
@@ -161,7 +144,7 @@ Capture Photo → Check GPS Accuracy → Add Description → Submit Report → T
                                                     Validate Nearby Reports
 ```
 
-### 👔 Supervisor (Health Official / NGO)
+### Supervisor (Health Official / NGO)
 ```
 View Reports → Accept/Reject → Assign Worker → Set Deadline → Verify Completion → Close
        │                              │
@@ -169,34 +152,10 @@ View Reports → Accept/Reject → Assign Worker → Set Deadline → Verify Com
   View Clusters              Generate QR + Notify
 ```
 
-### 🔧 Field Worker
+### Field Worker
 ```
 View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completion Photo → Submit
 ```
-
----
-
-## 📸 Screenshots
-
-### Landing Page
-- Modern glassmorphism design
-- Animated floating cards showing real-time workflow
-- Responsive mobile menu
-
-### User Dashboard
-- Camera capture with GPS accuracy indicator
-- Report submission form
-- Status tracking timeline
-
-### Supervisor Dashboard
-- Cluster map visualization
-- Worker assignment interface
-- Verification panel
-
-### Worker Dashboard
-- Assigned tasks list
-- QR scanner integration
-- Completion photo upload
 
 ---
 
@@ -257,7 +216,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Authentication
 | Method | Endpoint | Description |
@@ -297,7 +256,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Users Collection
 ```javascript
@@ -370,20 +329,14 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## 👨‍💻 Team
+## Team
 
 | Name | Role |
 |------|------|
-| [Team Member 1] | Full Stack Developer |
-| [Team Member 2] | Backend Developer |
-| [Team Member 3] | Frontend Developer |
-| [Team Member 4] | UI/UX Designer |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+| [Shubham Kumar] | Backend Developer |
+| [Yash Chauhan] | Full Stack Developer |
+| [Kanika Rajput] | Frontend Developer |
+| [Akash Kumar] | UI/UX Designer |
 
 ---
 
@@ -398,10 +351,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <p align="center">
   <b>Built with ❤️ for healthier communities</b>
-</p>
-
-<p align="center">
-  <a href="mailto:contact@aquaalert.org">Contact Us</a> •
-  <a href="https://aquaalert.org">Website</a> •
-  <a href="https://github.com/your-username/aquaalert">GitHub</a>
 </p>
