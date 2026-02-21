@@ -5,14 +5,48 @@
   --text: #e6eefc;
   --muted: rgba(230, 238, 252, 0.75);
   --border: rgba(230, 238, 252, 0.12);
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --cyan: #22d3ee;
+  --green: #34d399;
+  
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t: 260ms;
+  --t-fast: 180ms;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection */
+::selection {
+  background: rgba(37, 99, 235, 0.35);
+}
+
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -20,10 +54,17 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
   color: var(--text);
+  transition: color var(--t) var(--ease);
+}
+
+a:hover {
+  color: var(--cyan);
 }
 
 .container {
@@ -47,6 +88,13 @@ img {
   border-radius: 14px;
   padding: 14px;
   margin: 12px 0;
+  transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .muted {
@@ -71,6 +119,19 @@ img {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
+  outline: none;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), background var(--t) var(--ease);
+}
+
+.input:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.input:focus {
+  border-color: rgba(37, 99, 235, 0.6);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .btn {
@@ -86,10 +147,26 @@ img {
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
+  transition: transform var(--t) var(--ease-bounce), box-shadow var(--t) var(--ease), background var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-secondary {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .msg {
@@ -107,7 +184,14 @@ img {
   position: sticky;
   top: 0;
   background: rgba(11, 18, 32, 0.92);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 100;
+  transition: box-shadow var(--t) var(--ease);
+}
+
+.topbar.is-scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .title {
@@ -122,6 +206,12 @@ img {
   overflow: hidden;
   border: 1px solid var(--border);
   background: #000;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+
+.camera-shell:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .video {
@@ -142,6 +232,18 @@ img {
   background: rgba(255, 255, 255, 0.15);
   color: var(--text);
   font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--t) var(--ease-bounce), background var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+
+.capture:hover {
+  transform: translateX(-50%) scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.capture:active {
+  transform: translateX(-50%) scale(0.95);
 }
 
 .hidden {
@@ -166,6 +268,13 @@ img {
   padding: 12px;
   background: rgba(255, 255, 255, 0.04);
   overflow-wrap: anywhere;
+  transition: transform var(--t) var(--ease), border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+
+.item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .pill {
@@ -174,6 +283,11 @@ img {
   border-radius: 999px;
   border: 1px solid var(--border);
   font-size: 12px;
+  transition: transform var(--t) var(--ease-bounce), background var(--t) var(--ease);
+}
+
+.pill:hover {
+  transform: scale(1.05);
 }
 
 .row {
@@ -227,5 +341,24 @@ img {
     width: 64px;
     height: 64px;
     bottom: 10px;
+  }
+}
+
+/* Focus visible states */
+.btn:focus-visible,
+.input:focus-visible,
+.capture:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
