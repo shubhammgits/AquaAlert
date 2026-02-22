@@ -210,12 +210,6 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
    ```bash
    uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
    ```
-
-7. **Access the app**
-   - Landing Page: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health
-
 ---
 
 ## API Endpoints
