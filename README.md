@@ -349,8 +349,3 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 - FastAPI community for excellent documentation
 - All hackathon mentors and organizers
 
----
-
-<p align="center">
-  <b>Built with ❤️ for healthier communities</b>
-</p>
