@@ -2,6 +2,8 @@
 
 > **Smart Early Warning System for Water-Borne Diseases**
 
+<h3>Live : https://aquaalert-hljq.onrender.com/ </h3>
+
 <p align="center">
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>
   <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"/>
