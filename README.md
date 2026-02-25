@@ -342,10 +342,5 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## Acknowledgments
 
-- OpenStreetMap for mapping services
-- Leaflet.js for interactive maps
-- FastAPI community for excellent documentation
-- All hackathon mentors and organizers
 
