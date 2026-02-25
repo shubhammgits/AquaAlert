@@ -331,16 +331,5 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
-## Team
-
-| Name | Role |
-|------|------|
-| [Shubham Kumar] | Backend Developer |
-| [Yash Chauhan] | Full Stack Developer |
-| [Kanika Rajput] | Frontend Developer |
-| [Akash Kumar] | UI/UX Designer |
-
----
-
 
 
