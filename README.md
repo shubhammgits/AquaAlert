@@ -269,10 +269,10 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
   password_hash: String,
   role: "user" | "supervisor" | "worker",
   phone: String,
-  district: String,    // Indexed for filtering
+  district: String,
   state: String,
   city: String,
-  is_available: Boolean,  // Worker availability
+  is_available: Boolean,
   current_latitude: Number,
   current_longitude: Number,
   created_at: Date
