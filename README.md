@@ -15,7 +15,7 @@
 
 ## Problem Statement
 
-**Water-borne diseases** like cholera, typhoid, and dengue affect millions globally, especially in developing regions. Key challenges include:
+**Water borne diseases** like cholera, typhoid, and dengue affect millions globally, especially in developing regions. Key challenges include:
 
 - **Delayed Detection**: Hazards like stagnant water, open sewage, and contaminated sources go unreported for days
 - **Lack of Evidence**: Reports without geo-tagged proof are hard to verify and prioritize
