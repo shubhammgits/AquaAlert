@@ -310,7 +310,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 ```javascript
 {
   id: Number,
-  report_id: Number,   // FK to reports
+  report_id: Number,
   user_id: Number,
   vote: 1 | 0,
   created_at: Date
