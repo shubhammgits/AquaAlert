@@ -295,7 +295,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
   city: String,
   severity: "Low" | "Medium" | "High",
   status: "submitted" | "accepted" | "assigned" | "completed" | "closed" | "rejected",
-  cluster_id: String,  // Computed from lat/lng
+  cluster_id: String,
   qr_path: String,
   assigned_worker_id: Number,
   expected_completion_at: Date,
