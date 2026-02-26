@@ -283,7 +283,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 ```javascript
 {
   id: Number,          // Auto-increment ID
-  user_id: Number,     // FK to users
+  user_id: Number,
   latitude: Number,
   longitude: Number,
   location_accuracy: Number,
