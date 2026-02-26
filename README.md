@@ -24,7 +24,7 @@
 
 ---
 
-## Our Solution
+## Solution
 
 **AquaAlert** is a comprehensive early warning platform that transforms citizen observations into verified, accountable action through:
 
