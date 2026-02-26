@@ -258,9 +258,9 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 ### Users Collection
 ```javascript
 {
-  id: Number,          // Auto-increment ID
+  id: Number,
   name: String,
-  email: String,       // Unique, indexed
+  email: String,
   password_hash: String,
   role: "user" | "supervisor" | "worker",
   phone: String,
