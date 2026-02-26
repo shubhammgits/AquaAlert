@@ -282,7 +282,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 ### Reports Collection
 ```javascript
 {
-  id: Number,          // Auto-increment ID
+  id: Number,
   user_id: Number,
   latitude: Number,
   longitude: Number,
