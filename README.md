@@ -1,6 +1,6 @@
 # AquaAlert
 
-> **Smart Early Warning System for Water-Borne Diseases**
+> **Smart Early Warning System for Water Borne Diseases**
 
 <h3>Live : https://aquaalert-hljq.onrender.com/ </h3>
 
