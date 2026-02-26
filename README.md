@@ -311,8 +311,8 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 {
   id: Number,
   report_id: Number,   // FK to reports
-  user_id: Number,     // FK to users
-  vote: 1 | 0,         // 1 = agree, 0 = disagree
+  user_id: Number,
+  vote: 1 | 0,
   created_at: Date
 }
 ```
