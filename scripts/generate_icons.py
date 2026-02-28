@@ -53,7 +53,6 @@ def draw_water_drop(draw, size, color):
             local_t = t * 2
             x = center_x
             y = top_y + (local_t * drop_height * 0.4)
-            # Widen as we go down
             width_factor = local_t * 0.5
             points.append((x - drop_width * width_factor * 0.5, y))
         else:
