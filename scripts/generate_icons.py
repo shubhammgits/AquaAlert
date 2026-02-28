@@ -6,10 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import math
 
-# Icon sizes needed for PWA
 ICON_SIZES = [16, 32, 72, 96, 120, 128, 144, 152, 180, 192, 384, 512]
 
-# Colors (AquaAlert theme)
 BG_COLOR_START = (11, 18, 32)  # #0b1220
 BG_COLOR_END = (20, 35, 60)    # Slightly lighter
 ACCENT_COLOR = (0, 212, 255)   # #00d4ff (cyan)
