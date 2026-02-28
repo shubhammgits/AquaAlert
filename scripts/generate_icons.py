@@ -63,8 +63,7 @@ def draw_water_drop(draw, size, color):
             x = center_x + math.cos(angle) * radius
             y = center_y + math.sin(angle) * radius * 0.8
             points.append((x, y))
-    
-    # Draw the drop outline
+
     if len(points) >= 3:
         draw.polygon(points, outline=color, fill=None)
         
