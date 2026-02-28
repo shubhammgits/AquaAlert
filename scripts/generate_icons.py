@@ -67,7 +67,6 @@ def draw_water_drop(draw, size, color):
     if len(points) >= 3:
         draw.polygon(points, outline=color, fill=None)
         
-        # Draw inner highlight
         scale = 0.85
         inner_points = []
         for px, py in points:
