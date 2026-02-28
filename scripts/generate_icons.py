@@ -50,7 +50,6 @@ def draw_water_drop(draw, size, color):
         t = i / steps
         
         if t < 0.5:
-            # Top part (pointed)
             local_t = t * 2
             x = center_x
             y = top_y + (local_t * drop_height * 0.4)
