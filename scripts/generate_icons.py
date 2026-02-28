@@ -42,8 +42,7 @@ def draw_water_drop(draw, size, color):
     center_x = size // 2
     top_y = padding
     bottom_y = size - padding
-    
-    # Water drop shape using bezier approximation with polygon
+
     points = []
     steps = 50
     
