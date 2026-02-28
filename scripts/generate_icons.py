@@ -21,7 +21,6 @@ def create_gradient_background(size):
     center = size // 2
     for y in range(size):
         for x in range(size):
-            # Radial gradient
             dist = math.sqrt((x - center)**2 + (y - center)**2)
             max_dist = math.sqrt(2) * center
             ratio = min(dist / max_dist, 1.0)
