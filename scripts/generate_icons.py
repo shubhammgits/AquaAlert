@@ -56,7 +56,6 @@ def draw_water_drop(draw, size, color):
             width_factor = local_t * 0.5
             points.append((x - drop_width * width_factor * 0.5, y))
         else:
-            # Bottom part (rounded)
             local_t = (t - 0.5) * 2
             angle = math.pi * (1 - local_t)
             radius = drop_width * 0.5
