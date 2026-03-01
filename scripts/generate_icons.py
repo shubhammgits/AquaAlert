@@ -94,7 +94,6 @@ def draw_simple_drop(img, size):
     
     points = []
     
-    # Top point
     points.append((center_x, top_y))
     
     # Right curve
