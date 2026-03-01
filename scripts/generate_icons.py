@@ -81,7 +81,6 @@ def draw_simple_drop(img, size):
     """Draw a simpler, cleaner water drop"""
     draw = ImageDraw.Draw(img, 'RGBA')
     
-    # Calculate dimensions
     padding = size * 0.2
     center_x = size // 2
     center_y = size // 2
