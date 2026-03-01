@@ -88,7 +88,6 @@ def draw_simple_drop(img, size):
     drop_height = size * 0.6
     drop_width = size * 0.45
     
-    # Top point of drop
     top_y = center_y - drop_height * 0.4
     
     # Draw the main drop shape
