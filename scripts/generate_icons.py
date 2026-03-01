@@ -92,7 +92,6 @@ def draw_simple_drop(img, size):
     
     line_width = max(2, int(size * 0.04))
     
-    # Create drop path
     points = []
     
     # Top point
