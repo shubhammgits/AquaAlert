@@ -109,7 +109,6 @@ def draw_simple_drop(img, size):
         y = bottom_center_y + (drop_width * 0.3) * math.sin(angle)
         points.append((x, y))
     
-    # Left curve (going up)
     for i in range(20, 0, -1):
         t = i / 20
         x = center_x - (drop_width * 0.5) * math.sin(t * math.pi)
