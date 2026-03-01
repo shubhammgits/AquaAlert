@@ -102,7 +102,6 @@ def draw_simple_drop(img, size):
         y = top_y + drop_height * t
         points.append((x, y))
     
-    # Bottom arc
     bottom_center_y = top_y + drop_height
     for i in range(20):
         angle = -math.pi/2 + (math.pi * i / 20)
