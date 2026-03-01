@@ -85,7 +85,6 @@ def draw_simple_drop(img, size):
     center_x = size // 2
     center_y = size // 2
     
-    # Drop dimensions
     drop_height = size * 0.6
     drop_width = size * 0.45
     
