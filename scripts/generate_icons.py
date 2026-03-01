@@ -90,7 +90,6 @@ def draw_simple_drop(img, size):
     
     top_y = center_y - drop_height * 0.4
     
-    # Draw the main drop shape
     line_width = max(2, int(size * 0.04))
     
     # Create drop path
