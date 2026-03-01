@@ -96,7 +96,6 @@ def draw_simple_drop(img, size):
     
     points.append((center_x, top_y))
     
-    # Right curve
     for i in range(20):
         t = i / 20
         x = center_x + (drop_width * 0.5) * math.sin(t * math.pi)
