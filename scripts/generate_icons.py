@@ -115,7 +115,6 @@ def draw_simple_drop(img, size):
         y = top_y + drop_height * t
         points.append((x, y))
     
-    # Draw with glow effect
     glow_color = (*ACCENT_COLOR, 100)
     for offset in range(3, 0, -1):
         glow_points = [(p[0], p[1]) for p in points]
