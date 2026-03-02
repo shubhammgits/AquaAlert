@@ -122,7 +122,6 @@ def draw_simple_drop(img, size):
     
     draw.polygon(points, outline=ACCENT_COLOR, fill=(*ACCENT_COLOR, 20))
     
-    # Inner highlight (small arc at bottom)
     highlight_y = bottom_center_y - drop_width * 0.1
     highlight_points = []
     for i in range(15):
