@@ -120,7 +120,6 @@ def draw_simple_drop(img, size):
         glow_points = [(p[0], p[1]) for p in points]
         draw.polygon(glow_points, outline=(*ACCENT_COLOR, 50 * offset))
     
-    # Main outline
     draw.polygon(points, outline=ACCENT_COLOR, fill=(*ACCENT_COLOR, 20))
     
     # Inner highlight (small arc at bottom)
