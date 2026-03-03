@@ -144,7 +144,6 @@ def create_icon(size):
     return img
 
 def main():
-    # Create icons directory
     icons_dir = os.path.join(os.path.dirname(__file__), 'backend', 'static', 'icons')
     os.makedirs(icons_dir, exist_ok=True)
     
