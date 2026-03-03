@@ -163,7 +163,6 @@ def main():
     wide.save(os.path.join(icons_dir, 'screenshot-wide.png'), 'PNG')
     print("  Created: screenshot-wide.png")
     
-    # Narrow screenshot (720x1280)
     narrow = Image.new('RGB', (720, 1280), BG_COLOR_START)
     narrow_draw = ImageDraw.Draw(narrow)
     narrow_draw.rectangle([50, 100, 670, 1180], outline=ACCENT_COLOR, width=2)
