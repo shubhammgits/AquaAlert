@@ -137,7 +137,6 @@ def draw_simple_drop(img, size):
 
 def create_icon(size):
     """Create an icon of the specified size"""
-    # Create gradient background
     img = create_gradient_background(size)
     
     # Draw water drop
