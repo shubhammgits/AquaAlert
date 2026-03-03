@@ -156,8 +156,6 @@ def main():
         icon.save(filepath, 'PNG')
         print(f"  Created: {filename}")
     
-    # Create screenshot placeholders (simple colored rectangles)
-    # Wide screenshot (1280x720)
     wide = Image.new('RGB', (1280, 720), BG_COLOR_START)
     wide_draw = ImageDraw.Draw(wide)
     wide_draw.rectangle([100, 100, 1180, 620], outline=ACCENT_COLOR, width=2)
