@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,6 +21,7 @@ BACKEND_STATIC_DIR = Path(__file__).resolve().parent / "static"
 FRONTEND_DIST_DIR = ROOT_DIR / "frontend" / "dist"
 LEGACY_DIR = BACKEND_STATIC_DIR / "legacy"
 LANDING_DIR = BACKEND_STATIC_DIR / "landing"
+logger = logging.getLogger(__name__)
 
 # Load local environment variables (e.g. JWT_SECRET) from `.env` if present.
 # This keeps secrets out of source code.
@@ -80,7 +82,12 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def _startup() -> None:
-        ensure_indexes(get_mongo_database())
+        try:
+            ensure_indexes(get_mongo_database())
+            logger.info("MongoDB indexes ensured")
+        except Exception as exc:
+            # Do not crash boot on platform deploy if database is temporarily unreachable.
+            logger.warning("Skipping index initialization at startup: %s", exc)
 
     @app.get("/health")
     def health() -> dict:

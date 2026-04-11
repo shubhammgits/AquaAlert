@@ -213,6 +213,29 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 ---
 
+## Render Deployment (Fix for Exit Status 3)
+
+Use these exact settings in Render:
+
+- **Runtime**: Python
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+- **Health Check Path**: `/health`
+
+Required environment variables:
+
+- `JWT_SECRET` = your long random secret
+- `MONGODB_URI` = your MongoDB Atlas connection string
+- `MONGODB_DB` = `aquaalert`
+
+Notes:
+
+- Do not use `--reload` on Render.
+- App startup is now tolerant to temporary Mongo unavailability, so deploy should not fail during boot.
+- A Render blueprint file is included at `render.yaml`.
+
+---
+
 ## API Endpoints
 
 ### Authentication
