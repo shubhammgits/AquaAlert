@@ -56,8 +56,8 @@ async function handleLogin(e) {
   const msg = document.getElementById("loginMsg");
   msg.textContent = "";
   const form = e.target;
-  const email = form.email.value;
-  const password = form.password.value;
+  const email = (form.email.value || "").trim().toLowerCase();
+  const password = (form.password.value || "").trim();
 
   try {
     const data = await API.request("/auth/login", { method: "POST", body: { email, password }, auth: false });
@@ -77,14 +77,14 @@ async function handleRegister(e) {
 
   const form = e.target;
   const body = {
-    name: form.name.value,
-    email: form.email.value,
-    password: form.password.value,
+    name: (form.name.value || "").trim(),
+    email: (form.email.value || "").trim().toLowerCase(),
+    password: (form.password.value || "").trim(),
     role: form.role.value,
-    phone: form.phone ? form.phone.value : "",
-    district: form.district ? form.district.value : "",
-    state: form.state ? form.state.value : "",
-    city: form.city ? form.city.value : "",
+    phone: form.phone ? (form.phone.value || "").trim() : "",
+    district: form.district ? (form.district.value || "").trim() : "",
+    state: form.state ? (form.state.value || "").trim() : "",
+    city: form.city ? (form.city.value || "").trim() : "",
   };
 
   try {
@@ -102,6 +102,7 @@ async function handleRegister(e) {
     msg.textContent = err.message;
   }
 }
+
 
 function wireLogout() {
   const btn = document.getElementById("logoutBtn");

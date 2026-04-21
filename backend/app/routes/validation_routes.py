@@ -36,7 +36,7 @@ def nearby_candidates(
     db: Annotated[Database, Depends(get_db)],
     radius_m: int = 3000,
 ):
-    # Pull recent reports; filter by distance in Python to keep SQLite simple.
+    # Pull recent reports; filter by distance in Python to keep the query simple.
     rows = list(
         db["reports"]
         .find({"status": {"$in": ["submitted", "accepted", "assigned"]}})

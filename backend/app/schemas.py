@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
-Role = Literal["user", "supervisor", "worker"]
+Role = Literal["user", "supervisor", "worker", "public"]
 Severity = Literal["Low", "Medium", "High"]
 ReportStatus = Literal[
     "submitted",
@@ -27,6 +28,27 @@ class RegisterIn(BaseModel):
     district: str = Field(default="", max_length=120)
     state: str = Field(default="", max_length=120)
     city: str = Field(default="", max_length=120)
+
+    @field_validator("role", mode="before")
+    @classmethod
+    def normalize_role(cls, value):
+        if value == "public":
+            return "user"
+        return value
+
+    @field_validator("password")
+    @classmethod
+    def validate_password_strength(cls, value: str):
+        pwd = str(value or "")
+        if len(pwd) <= 6:
+            raise ValueError("Password must be more than 6 characters")
+        if not re.search(r"[A-Za-z]", pwd):
+            raise ValueError("Password must include at least one letter")
+        if not re.search(r"\d", pwd):
+            raise ValueError("Password must include at least one number")
+        if not re.search(r"[^A-Za-z0-9]", pwd):
+            raise ValueError("Password must include at least one special character")
+        return pwd
 
 
 class LoginIn(BaseModel):

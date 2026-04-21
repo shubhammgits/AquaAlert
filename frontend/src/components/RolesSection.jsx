@@ -21,7 +21,7 @@ export default function RolesSection() {
         />
 
         <RoleCard
-          title="Public Source"
+          title="User"
           theme="gray"
           description="Empowering citizens to contribute to community safety through crowdsourced images."
           features={["Fast image upload", "Auto-location tagging", "Anonymous reporting"]}

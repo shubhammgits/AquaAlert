@@ -75,7 +75,16 @@
             <div class="field col-3">
               <div class="label">Set Password</div>
               <div class="control">
-                <input id="registerPassword" class="input" type="password" name="password" required placeholder="Password" />
+                <input
+                  id="registerPassword"
+                  class="input"
+                  type="password"
+                  name="password"
+                  required
+                  minlength="7"
+                  placeholder="Password (min 7 chars)"
+                  title="Password must be more than 6 chars and include letter, number, special character"
+                />
                 <button
                   class="toggle"
                   type="button"
@@ -84,6 +93,7 @@
                   data-toggle-password
                 ></button>
               </div>
+              <p class="hint">Password must be more than 6 characters and include at least one letter, one number, and one special character.</p>
             </div>
           </div>
 

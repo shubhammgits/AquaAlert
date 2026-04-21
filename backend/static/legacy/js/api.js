@@ -20,7 +20,16 @@ const API = {
       data = text;
     }
     if (!res.ok) {
-      const msg = (data && data.detail) || `Request failed (${res.status})`;
+      let msg = `Request failed (${res.status})`;
+      if (data && data.detail) {
+        if (Array.isArray(data.detail)) {
+          const first = data.detail[0] || {};
+          const fieldPath = Array.isArray(first.loc) ? first.loc.join(".") : "field";
+          msg = `${fieldPath}: ${first.msg || "Invalid value"}`;
+        } else if (typeof data.detail === "string") {
+          msg = data.detail;
+        }
+      }
       throw new Error(msg);
     }
     return data;

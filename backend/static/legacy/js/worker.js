@@ -1,6 +1,7 @@
 let _workerStream = null;
 let _workerCaptured = "";
 let _locTimer = null;
+const LOCATION_ACCURACY_LIMIT_M = 800;
 
 let _assignedCache = [];
 let _historyCache = [];
@@ -65,7 +66,7 @@ async function pingWorkerLocation() {
   try {
     const pos = await getCurrentPositionWorker();
     const { latitude, longitude, accuracy } = pos.coords;
-    if (accuracy > 100) return;
+    if (accuracy > LOCATION_ACCURACY_LIMIT_M) return;
     await API.request("/workers/location", {
       method: "POST",
       body: { latitude, longitude, accuracy, timestamp: pos.timestamp },
@@ -176,7 +177,11 @@ async function refreshHistory() {
       .join("");
   }
 
-function getCurrentPositionWorker() {
+function _sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function _getCurrentPositionWorkerOnce() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) reject(new Error("no geo"));
     navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -185,6 +190,29 @@ function getCurrentPositionWorker() {
       maximumAge: 0,
     });
   });
+}
+
+async function getCurrentPositionWorker() {
+  let best = null;
+  let lastErr = null;
+
+  for (let i = 0; i < 3; i++) {
+    try {
+      const pos = await _getCurrentPositionWorkerOnce();
+      if (!best || Number(pos.coords.accuracy || Infinity) < Number(best.coords.accuracy || Infinity)) {
+        best = pos;
+      }
+      if (Number(best.coords.accuracy || Infinity) <= LOCATION_ACCURACY_LIMIT_M) {
+        return best;
+      }
+    } catch (err) {
+      lastErr = err;
+    }
+    await _sleep(800);
+  }
+
+  if (best) return best;
+  throw lastErr || new Error("Unable to acquire location");
 }
 
 async function refreshAssigned() {
@@ -380,8 +408,8 @@ async function submitCompletion() {
   }
 
   const { latitude, longitude, accuracy } = pos.coords;
-  if (accuracy > 100) {
-    msg.textContent = "GPS accuracy is too low (>100m).";
+  if (accuracy > LOCATION_ACCURACY_LIMIT_M) {
+    msg.textContent = `GPS accuracy is too low (${Math.round(accuracy)}m). Required <= ${LOCATION_ACCURACY_LIMIT_M}m.`;
     return;
   }
 

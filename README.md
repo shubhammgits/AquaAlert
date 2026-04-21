@@ -208,7 +208,7 @@ View Assignments → Scan QR → Navigate → Resolve Issue → Capture Completi
 
 6. **Run the application**
    ```bash
-   uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+   uvicorn --app-dir . backend.main:app --reload --host 127.0.0.1 --port 8000
    ```
 
 ---
@@ -219,7 +219,7 @@ Use these exact settings in Render:
 
 - **Runtime**: Python
 - **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+- **Start Command**: `uvicorn --app-dir . backend.main:app --host 0.0.0.0 --port $PORT`
 - **Health Check Path**: `/health`
 
 Required environment variables:
@@ -227,12 +227,40 @@ Required environment variables:
 - `JWT_SECRET` = your long random secret
 - `MONGODB_URI` = your MongoDB Atlas connection string
 - `MONGODB_DB` = `aquaalert`
+- `SUPABASE_URL` = your Supabase project URL
+- `SUPABASE_BUCKET` = your Supabase storage bucket name
+- `SUPABASE_SERVICE_ROLE_KEY` = your Supabase service-role secret key
 
 Notes:
 
 - Do not use `--reload` on Render.
 - App startup is now tolerant to temporary Mongo unavailability, so deploy should not fail during boot.
+- Report photos, completion photos, and QR images are stored in Supabase Storage, while users/reports/status data stay in MongoDB.
 - A Render blueprint file is included at `render.yaml`.
+
+Recommended deployment flow:
+
+1. Create the backend service on Render from this repo.
+2. Add all required environment variables in the Render dashboard.
+3. Make sure your Supabase bucket is created and public.
+4. Deploy the backend and wait for the `/health` check to pass.
+5. Open the deployed site and test login, report submit, assignment, completion, and QR display.
+
+---
+
+## Mobile App Path
+
+The recommended mobile delivery is the Android wrapper in `android-app/`.
+
+- It opens the deployed AquaAlert web app inside a native Android shell.
+- It keeps the same backend, database, authentication, reports, and clustering logic.
+- It still requires the FastAPI backend and MongoDB running behind it.
+
+For the React frontend auth flow, use same-origin in production and set this only for local Vite development if needed:
+
+```bash
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
 
 ---
 

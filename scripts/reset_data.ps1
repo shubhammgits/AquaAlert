@@ -9,10 +9,11 @@ try {
   }
 } catch {}
 
-Write-Host 'Deleting SQLite DB and static uploads...'
-Remove-Item -Force -ErrorAction SilentlyContinue "backend\aquaalert.db"
+Write-Host 'Deleting generated images and QR codes...'
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "backend\static\images\*"
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "backend\static\qr\*"
 
 Write-Host 'Done. Start the server again with:'
-Write-Host '  uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000'
+Write-Host '  Set-Location ''C:\Users\shubh\Desktop\aquaalert''; .\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000'
+Write-Host ''
+Write-Host 'If you want to clear MongoDB too, drop the collections in your database (users, reports, validations, counters).'

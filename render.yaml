@@ -5,7 +5,7 @@ services:
     plan: free
     autoDeploy: true
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn --app-dir . backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
@@ -16,3 +16,9 @@ services:
         sync: false
       - key: MONGODB_DB
         value: aquaalert
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_BUCKET
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

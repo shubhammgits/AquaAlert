@@ -445,6 +445,13 @@ a:hover {
   color: var(--green);
 }
 
+.hint {
+  margin: 8px 2px 0;
+  color: rgba(156, 163, 175, 0.95);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }

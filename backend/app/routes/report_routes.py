@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import base64
 import datetime as dt
+import os
+import mimetypes
+import re
 import uuid
 from pathlib import Path
 from typing import Annotated
@@ -22,12 +25,57 @@ from backend.app.schemas import (
 from backend.app.services.cluster_service import compute_cluster_id
 from backend.app.services.geotag_service import annotate_report_image
 from backend.app.services.qr_service import generate_qr_for_report
+from backend.app.services.supabase_storage import upload_file
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 STATIC_DIR = Path(__file__).resolve().parents[2] / "static"
 IMAGES_DIR = STATIC_DIR / "images"
 MAX_IMAGE_BYTES = 2 * 1024 * 1024
+try:
+    MAX_REPORT_LOCATION_ACCURACY_M = int(os.getenv("MAX_REPORT_LOCATION_ACCURACY_M", os.getenv("MAX_LOCATION_ACCURACY_M", "300")))
+except Exception:
+    MAX_REPORT_LOCATION_ACCURACY_M = 300
+
+try:
+    MAX_WORKER_COMPLETION_ACCURACY_M = int(
+        os.getenv("MAX_WORKER_COMPLETION_ACCURACY_M", os.getenv("MAX_LOCATION_ACCURACY_M", "800"))
+    )
+except Exception:
+    MAX_WORKER_COMPLETION_ACCURACY_M = 800
+
+
+def _district_regex(value: str):
+    cleaned = " ".join(str(value or "").strip().split())
+    escaped = re.escape(cleaned).replace(r"\ ", r"\s+")
+    return re.compile(rf"^\s*{escaped}\s*$", re.IGNORECASE)
+
+
+def _same_district(a: str | None, b: str | None) -> bool:
+    na = " ".join(str(a or "").strip().split()).lower()
+    nb = " ".join(str(b or "").strip().split()).lower()
+    return na == nb
+
+
+def _normalize_district(value: str) -> str:
+    return " ".join(str(value or "").strip().split())
+
+
+def _guess_content_type(file_path: Path, default: str) -> str:
+    guessed, _ = mimetypes.guess_type(str(file_path))
+    return guessed or default
+
+
+def _store_media(*, local_file: Path, object_path: str, local_url: str, default_content_type: str) -> str:
+    try:
+        uploaded_url = upload_file(
+            file_path=local_file,
+            object_path=object_path,
+            content_type=_guess_content_type(local_file, default_content_type),
+        )
+        return uploaded_url or local_url
+    except Exception:
+        return local_url
 
 
 def _decode_data_url(data_url_or_b64: str) -> bytes:
@@ -59,7 +107,7 @@ def _to_report_out(report: dict, assigned_worker: dict | None = None) -> ReportO
         latitude=float(report.get("latitude", 0.0)),
         longitude=float(report.get("longitude", 0.0)),
         location_accuracy=float(report.get("location_accuracy", 0.0)),
-        image_url=f"/static/{report.get('image_path','')}",
+        image_url=str(report.get("image_url") or f"/static/{report.get('image_path','')}"),
         description=str(report.get("description") or ""),
         contact_phone=str(report.get("contact_phone") or ""),
         district=str(report.get("district") or ""),
@@ -68,10 +116,13 @@ def _to_report_out(report: dict, assigned_worker: dict | None = None) -> ReportO
         severity=report.get("severity", "Low"),
         status=report.get("status", "submitted"),
         cluster_id=str(report.get("cluster_id") or ""),
-        qr_url=f"/static/{report.get('qr_path','')}" if report.get("qr_path") else "",
+        qr_url=str(report.get("qr_url") or (f"/static/{report.get('qr_path','')}" if report.get("qr_path") else "")),
         assigned_worker=worker_out,
         expected_completion_at=report.get("expected_completion_at"),
-        completion_image_url=f"/static/{report.get('completion_image_path','')}" if report.get("completion_image_path") else "",
+        completion_image_url=str(
+            report.get("completion_image_url")
+            or (f"/static/{report.get('completion_image_path','')}" if report.get("completion_image_path") else "")
+        ),
         completed_at=report.get("completed_at"),
         completion_verified_at=report.get("completion_verified_at"),
         resolution_message=str(report.get("resolution_message") or ""),
@@ -85,8 +136,11 @@ def create_report(
     user: Annotated[dict, Depends(require_role("user", "supervisor"))],
     db: Database = Depends(get_db),
 ):
-    if payload.accuracy > 100:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Location accuracy too low (>100m)")
+    if payload.accuracy > MAX_REPORT_LOCATION_ACCURACY_M:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Location accuracy too low (>{MAX_REPORT_LOCATION_ACCURACY_M}m)",
+        )
 
     image_bytes = _decode_data_url(payload.image_base64)
     if len(image_bytes) > MAX_IMAGE_BYTES:
@@ -102,6 +156,9 @@ def create_report(
     report_id = get_next_id(db, "reports")
     created_at = dt.datetime.utcnow()
 
+    report_image_object = f"reports/{report_id}/report.jpg"
+    report_image_url = f"/static/images/{filename}"
+
     report = {
         "id": report_id,
         "user_id": int(user["id"]),
@@ -109,9 +166,10 @@ def create_report(
         "longitude": float(payload.longitude),
         "location_accuracy": float(payload.accuracy),
         "image_path": f"images/{filename}",
+        "image_url": report_image_url,
         "description": payload.description,
         "contact_phone": payload.contact_phone.strip(),
-        "district": payload.district.strip(),
+        "district": _normalize_district(payload.district),
         "state": (payload.state or "").strip(),
         "city": (payload.city or "").strip(),
         "severity": "Low",
@@ -154,6 +212,25 @@ def create_report(
     except Exception:
         pass
 
+    report["image_url"] = _store_media(
+        local_file=file_path,
+        object_path=report_image_object,
+        local_url=report_image_url,
+        default_content_type="image/jpeg",
+    )
+    qr_file = STATIC_DIR / qr_rel_path
+    report["qr_url"] = _store_media(
+        local_file=qr_file,
+        object_path=f"reports/{report_id}/qr.png",
+        local_url=f"/static/{qr_rel_path}",
+        default_content_type="image/png",
+    )
+
+    db["reports"].update_one(
+        {"id": report_id},
+        {"$set": {"image_url": report["image_url"], "qr_url": report["qr_url"]}},
+    )
+
     return _to_report_out(report)
 
 
@@ -168,7 +245,7 @@ def accept_report(
         raise HTTPException(status_code=404, detail="Report not found")
     if not supervisor.get("district"):
         raise HTTPException(status_code=400, detail="Supervisor district not set")
-    if (report.get("district") or "") != (supervisor.get("district") or ""):
+    if not _same_district(report.get("district"), supervisor.get("district")):
         raise HTTPException(status_code=403, detail="Forbidden")
     if report.get("status") not in {"submitted"}:
         raise HTTPException(status_code=400, detail=f"Cannot accept report in status {report.get('status')}")
@@ -194,7 +271,7 @@ def assign_report(
         raise HTTPException(status_code=404, detail="Report not found")
     if not supervisor.get("district"):
         raise HTTPException(status_code=400, detail="Supervisor district not set")
-    if (report.get("district") or "") != (supervisor.get("district") or ""):
+    if not _same_district(report.get("district"), supervisor.get("district")):
         raise HTTPException(status_code=403, detail="Forbidden")
     if report.get("status") not in {"accepted", "assigned"}:
         raise HTTPException(status_code=400, detail=f"Cannot assign report in status {report.get('status')}")
@@ -281,8 +358,11 @@ def complete_report(
     worker: Annotated[dict, Depends(require_role("worker"))],
     db: Database = Depends(get_db),
 ):
-    if payload.accuracy > 100:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Location accuracy too low (>100m)")
+    if payload.accuracy > MAX_WORKER_COMPLETION_ACCURACY_M:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Location accuracy too low (>{MAX_WORKER_COMPLETION_ACCURACY_M}m)",
+        )
 
     report = db["reports"].find_one({"id": report_id})
     if not report:
@@ -298,11 +378,20 @@ def complete_report(
 
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
     filename = f"completion_{uuid.uuid4().hex}.jpg"
-    (IMAGES_DIR / filename).write_bytes(image_bytes)
+    completion_file = IMAGES_DIR / filename
+    completion_file.write_bytes(image_bytes)
+
+    completion_url = _store_media(
+        local_file=completion_file,
+        object_path=f"reports/{report_id}/completion.jpg",
+        local_url=f"/static/images/{filename}",
+        default_content_type="image/jpeg",
+    )
 
     now = dt.datetime.utcnow()
     updates = {
         "completion_image_path": f"images/{filename}",
+        "completion_image_url": completion_url,
         "completion_latitude": float(payload.latitude),
         "completion_longitude": float(payload.longitude),
         "completion_accuracy": float(payload.accuracy),
@@ -327,7 +416,7 @@ def verify_completion(
         raise HTTPException(status_code=404, detail="Report not found")
     if not supervisor.get("district"):
         raise HTTPException(status_code=400, detail="Supervisor district not set")
-    if (report.get("district") or "") != (supervisor.get("district") or ""):
+    if not _same_district(report.get("district"), supervisor.get("district")):
         raise HTTPException(status_code=403, detail="Forbidden")
     if report.get("status") != "completed":
         raise HTTPException(status_code=400, detail=f"Cannot verify report in status {report.get('status')}")
@@ -379,7 +468,8 @@ def all_reports(
     if not supervisor.get("district"):
         raise HTTPException(status_code=400, detail="Supervisor district not set")
 
-    cursor = db["reports"].find({"district": supervisor.get("district")}).sort("created_at", DESCENDING)
+    district = str(supervisor.get("district") or "").strip()
+    cursor = db["reports"].find({"district": _district_regex(district)}).sort("created_at", DESCENDING)
     rows = list(cursor)
     # Attach worker details when assigned
     out: list[ReportOut] = []

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import os
+import re
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -13,6 +15,26 @@ from backend.app.database import get_db
 from backend.app.schemas import WorkerLocationIn, WorkerOut
 
 router = APIRouter(prefix="/workers", tags=["workers"])
+try:
+    MAX_WORKER_LOCATION_ACCURACY_M = int(
+        os.getenv("MAX_WORKER_LOCATION_ACCURACY_M", os.getenv("MAX_LOCATION_ACCURACY_M", "800"))
+    )
+except Exception:
+    MAX_WORKER_LOCATION_ACCURACY_M = 800
+
+
+def _normalize_district(value: str | None) -> str:
+    return " ".join(str(value or "").strip().split()).lower()
+
+
+def _same_district(a: str | None, b: str | None) -> bool:
+    return _normalize_district(a) == _normalize_district(b)
+
+
+def _district_regex(value: str):
+    cleaned = " ".join(str(value or "").strip().split())
+    escaped = re.escape(cleaned).replace(r"\ ", r"\s+")
+    return re.compile(rf"^\s*{escaped}\s*$", re.IGNORECASE)
 
 
 def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -33,8 +55,8 @@ def update_my_location(
     db: Annotated[Database, Depends(get_db)],
 ):
     # Keep consistent with the rest of the app: reject very low-accuracy GPS.
-    if payload.accuracy > 100:
-        raise HTTPException(status_code=400, detail="Location accuracy too low (>100m)")
+    if payload.accuracy > MAX_WORKER_LOCATION_ACCURACY_M:
+        raise HTTPException(status_code=400, detail=f"Location accuracy too low (>{MAX_WORKER_LOCATION_ACCURACY_M}m)")
 
     updated_at = dt.datetime.utcnow()
     db["users"].update_one(
@@ -69,17 +91,20 @@ def list_workers(
     lon: Optional[float] = None,
     max_age_sec: int = 900,
 ):
-    if not supervisor.get("district"):
+    supervisor_district = str(supervisor.get("district") or "").strip()
+    if not supervisor_district:
         raise HTTPException(status_code=400, detail="Supervisor district not set")
 
     if district is None:
-        district = supervisor.get("district")
-    elif district != supervisor.get("district"):
+        district = supervisor_district
+    elif not _same_district(district, supervisor_district):
         raise HTTPException(status_code=403, detail="Forbidden")
+    else:
+        district = supervisor_district
 
     query: dict = {"role": "worker"}
     if district:
-        query["district"] = district
+        query["district"] = _district_regex(district)
     if only_available:
         query["is_available"] = True
 
