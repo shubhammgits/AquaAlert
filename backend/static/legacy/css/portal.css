@@ -829,6 +829,19 @@ a.sidebar__brand:hover {
   aspect-ratio: 16 / 10;
 }
 
+.portal .mobile-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 2px;
+}
+
+.portal .mobile-hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 520px) {
   .portal .camera-shell {
     max-width: 100%;
@@ -848,9 +861,49 @@ a.sidebar__brand:hover {
     border-left: 0;
     border-bottom: 1px solid var(--border);
   }
+  .sidebar--left {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding-bottom: 10px;
+  }
   .sidebar--right {
     border-top: 1px solid var(--border);
     border-bottom: 0;
+  }
+  .sidebar__brand {
+    padding-bottom: 10px;
+  }
+  .nav {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px 6px;
+    scroll-snap-type: x proximity;
+  }
+  .nav__item,
+  .nav__sub {
+    flex: 0 0 auto;
+    min-width: max-content;
+    scroll-snap-align: start;
+  }
+  .nav__group {
+    margin: 0;
+    padding: 0 2px 2px;
+    border-left: 0;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    max-height: none;
+  }
+  .sidebar__footer {
+    display: none;
+  }
+  .sidepanel {
+    position: static;
+  }
+  .history {
+    max-height: none;
   }
 }
 
@@ -1059,8 +1112,46 @@ a.sidebar__brand:hover {
 }
 
 @media (max-width: 520px) {
+  .portal h2,
+  .portal .card__title {
+    font-size: 17px;
+  }
+  .portal .container {
+    padding: 12px;
+  }
+  .portal .card {
+    padding: 16px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+  }
   .portal .grid-2 {
     grid-template-columns: 1fr;
+  }
+  .portal .actions {
+    grid-template-columns: 1fr;
+  }
+  .portal .mobile-actions {
+    flex-direction: column;
+  }
+  .portal .btn,
+  .portal .btn.btn-secondary {
+    width: 100%;
+    min-height: 48px;
+  }
+  .portal .item,
+  .portal .witem,
+  .hitem__head,
+  .hitem__bodyInner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .portal .camera-shell {
+    margin-top: 8px;
+    aspect-ratio: 4 / 5;
+  }
+  .portal .capture {
+    width: 68px;
+    height: 68px;
   }
 }
 

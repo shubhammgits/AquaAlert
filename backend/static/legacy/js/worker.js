@@ -2,6 +2,7 @@ let _workerStream = null;
 let _workerCaptured = "";
 let _locTimer = null;
 const LOCATION_ACCURACY_LIMIT_M = 800;
+let _workerHandlersBound = false;
 
 let _assignedCache = [];
 let _historyCache = [];
@@ -81,42 +82,90 @@ async function initWorkerCamera() {
   const video = document.getElementById("video");
   const captureBtn = document.getElementById("captureBtn");
   const submitBtn = document.getElementById("submitCompletionBtn");
+  const uploadBtn = document.getElementById("uploadCompletionBtn");
+  const photoInput = document.getElementById("completionPhotoInput");
   const msg = document.getElementById("workerMsg");
 
   msg.textContent = "";
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    msg.textContent = "Camera API not available in this browser. Open in Chrome/Edge on https or localhost.";
-    return;
+
+  async function startWorkerCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      msg.textContent = "Camera API not available in this browser. Use Upload Photo Instead.";
+      return false;
+    }
+    if (!window.isSecureContext) {
+      msg.textContent =
+        "Camera requires a secure context. Use https://, or open via http://localhost:8000 or http://127.0.0.1:8000 (not a LAN IP).";
+    }
+    try {
+      _workerStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      video.srcObject = _workerStream;
+      try {
+        await video.play();
+      } catch {
+        // ignore
+      }
+      return true;
+    } catch {
+      msg.textContent =
+        "Camera permission denied or unavailable. Use Upload Photo Instead if your phone browser blocks live capture.";
+      return false;
+    }
   }
-  if (!window.isSecureContext) {
-    msg.textContent =
-      "Camera requires a secure context. Use https://, or open via http://localhost:8000 or http://127.0.0.1:8000 (not a LAN IP).";
-  }
-  try {
-    _workerStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" } },
-      audio: false,
+
+  await startWorkerCamera();
+
+  if (!_workerHandlersBound) {
+    captureBtn.addEventListener("click", () => {
+      if (!_workerStream || !video.srcObject) {
+        msg.textContent = "Starting camera...";
+        startWorkerCamera().then((ok) => {
+          if (ok) msg.textContent = "Camera ready. Tap Capture again.";
+        });
+        return;
+      }
+      const canvas = document.getElementById("canvas");
+      const w = video.videoWidth || 720;
+      const h = video.videoHeight || 960;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, w, h);
+      _workerCaptured = canvas.toDataURL("image/jpeg", 0.85);
+      msg.textContent = "Captured. Tap Send to Supervisor.";
     });
-    video.srcObject = _workerStream;
-  } catch {
-    msg.textContent =
-      "Camera permission denied or unavailable. Tip: use https:// or http://localhost:8000 / 127.0.0.1; VS Code Simple Browser often blocks camera.";
-    return;
+
+    if (uploadBtn && photoInput) {
+      uploadBtn.addEventListener("click", () => photoInput.click());
+      photoInput.addEventListener("change", async (event) => {
+        const file = event.target && event.target.files ? event.target.files[0] : null;
+        if (!file) return;
+        try {
+          _workerCaptured = await fileToDataUrl(file);
+          msg.textContent = "Photo selected. Tap Send to Supervisor.";
+        } catch {
+          msg.textContent = "Unable to read selected photo.";
+        } finally {
+          photoInput.value = "";
+        }
+      });
+    }
+
+    submitBtn.addEventListener("click", submitCompletion);
+    _workerHandlersBound = true;
   }
+}
 
-  captureBtn.addEventListener("click", () => {
-    const canvas = document.getElementById("canvas");
-    const w = video.videoWidth || 720;
-    const h = video.videoHeight || 960;
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, w, h);
-    _workerCaptured = canvas.toDataURL("image/jpeg", 0.85);
-    msg.textContent = "Captured. Tap Send to Supervisor.";
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("read failed"));
+    reader.readAsDataURL(file);
   });
-
-  submitBtn.addEventListener("click", submitCompletion);
 }
 
 async function refreshHistory() {

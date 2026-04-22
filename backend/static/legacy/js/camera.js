@@ -1,6 +1,7 @@
 let _stream = null;
 let _capturedDataUrl = "";
 const LOCATION_ACCURACY_LIMIT_M = 300;
+let _cameraHandlersBound = false;
 
 function _isLocalhostHost(hostname) {
   const h = String(hostname || "").toLowerCase();
@@ -22,6 +23,8 @@ async function initCamera() {
   const video = document.getElementById("video");
   const captureBtn = document.getElementById("captureBtn");
   const submitBtn = document.getElementById("submitBtn");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const photoInput = document.getElementById("photoInput");
   const msg = document.getElementById("reportMsg");
   if (!video || !captureBtn || !submitBtn) return;
 
@@ -96,27 +99,46 @@ async function initCamera() {
 
   await startCamera();
 
-  captureBtn.addEventListener("click", () => {
-    // If camera didn't start due to gesture/permissions, let Capture also act as a retry.
-    if (!_stream || !video.srcObject) {
-      msg.textContent = "Starting camera...";
-      startCamera().then((ok) => {
-        if (ok) msg.textContent = "Camera ready. Tap Capture again.";
-      });
-      return;
-    }
-    const canvas = document.getElementById("canvas");
-    const w = video.videoWidth || 720;
-    const h = video.videoHeight || 960;
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, w, h);
-    _capturedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
-    msg.textContent = "Captured. Tap Submit Report.";
-  });
+  if (!_cameraHandlersBound) {
+    captureBtn.addEventListener("click", () => {
+      // If camera didn't start due to gesture/permissions, let Capture also act as a retry.
+      if (!_stream || !video.srcObject) {
+        msg.textContent = "Starting camera...";
+        startCamera().then((ok) => {
+          if (ok) msg.textContent = "Camera ready. Tap Capture again.";
+        });
+        return;
+      }
+      const canvas = document.getElementById("canvas");
+      const w = video.videoWidth || 720;
+      const h = video.videoHeight || 960;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, w, h);
+      _capturedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      msg.textContent = "Captured. Tap Submit Report.";
+    });
 
-  submitBtn.addEventListener("click", submitReport);
+    if (uploadBtn && photoInput) {
+      uploadBtn.addEventListener("click", () => photoInput.click());
+      photoInput.addEventListener("change", async (event) => {
+        const file = event.target && event.target.files ? event.target.files[0] : null;
+        if (!file) return;
+        try {
+          _capturedDataUrl = await fileToDataUrl(file);
+          msg.textContent = "Photo selected. Tap Submit Report.";
+        } catch {
+          msg.textContent = "Unable to read selected photo.";
+        } finally {
+          photoInput.value = "";
+        }
+      });
+    }
+
+    submitBtn.addEventListener("click", submitReport);
+    _cameraHandlersBound = true;
+  }
 
   window.addEventListener("beforeunload", () => {
     try {
@@ -126,6 +148,15 @@ async function initCamera() {
     } catch {
       // ignore
     }
+  });
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("read failed"));
+    reader.readAsDataURL(file);
   });
 }
 

@@ -129,9 +129,14 @@
                 <canvas id="canvas" class="hidden"></canvas>
                 <button id="captureBtn" class="capture" type="button">Capture</button>
               </div>
+              <input id="completionPhotoInput" class="hidden" type="file" accept="image/*" capture="environment" />
+              <div class="mobile-actions">
+                <button id="uploadCompletionBtn" class="btn btn-secondary" type="button">Upload Photo Instead</button>
+              </div>
 
               <button id="submitCompletionBtn" class="btn" type="button">Send to Supervisor</button>
               <p id="workerMsg" class="msg" aria-live="polite"></p>
+              <p class="muted mobile-hint">Use a fresh photo from site. If camera access is blocked, upload directly from your phone camera picker.</p>
             </div>
           </section>
 

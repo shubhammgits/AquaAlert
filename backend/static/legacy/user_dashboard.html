@@ -114,6 +114,10 @@
                   <canvas id="canvas" class="hidden"></canvas>
                   <button id="captureBtn" class="capture" type="button">Capture</button>
                 </div>
+                <input id="photoInput" class="hidden" type="file" accept="image/*" capture="environment" />
+                <div class="mobile-actions">
+                  <button id="uploadBtn" class="btn btn-secondary" type="button">Upload Photo Instead</button>
+                </div>
               </div>
 
               <div class="capture-grid__form">
@@ -142,6 +146,7 @@
                   </label>
                   <button id="submitBtn" class="btn" type="button">Submit Report</button>
                   <p id="reportMsg" class="msg" aria-live="polite"></p>
+                  <p class="muted mobile-hint">Live camera is preferred. If the browser blocks it on your phone, use Upload Photo Instead.</p>
                 </div>
               </div>
             </div>

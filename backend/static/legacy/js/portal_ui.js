@@ -64,6 +64,20 @@
     toggleGroup(btn);
   });
 
+  function syncActiveNav() {
+    try {
+      const currentHash = window.location.hash || "";
+      document.querySelectorAll(".nav__item[href], .nav__sub[href]").forEach((link) => {
+        const href = link.getAttribute("href") || "";
+        const isHashLink = href.startsWith("#");
+        const active = isHashLink ? href === currentHash : window.location.pathname === href;
+        link.classList.toggle("is-active", !!active);
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   // Auto-open group if URL hash matches a sub-link
   function openIfHashMatches() {
     const hash = (window.location.hash || "").trim();
@@ -83,15 +97,19 @@
   }
 
   window.addEventListener("hashchange", openIfHashMatches);
+  window.addEventListener("hashchange", syncActiveNav);
   openIfHashMatches();
+  syncActiveNav();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       markReady();
       initSectionReveal();
+      syncActiveNav();
     });
   } else {
     markReady();
     initSectionReveal();
+    syncActiveNav();
   }
 })();
